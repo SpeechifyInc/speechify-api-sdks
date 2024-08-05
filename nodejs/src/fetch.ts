@@ -1,4 +1,5 @@
 import type {
+	AudioSpeechFormat,
 	VoiceLanguage,
 	VoiceLanguageServer,
 	VoiceModel,
@@ -105,4 +106,19 @@ export const mapVoice = (voice: VoicesListEntryServer): VoicesListEntry => {
 		gender: voice.gender,
 		avatarImage: voice.avatar_image,
 	} satisfies VoicesListEntry;
+};
+
+export const audioFormatToMime = (format: AudioSpeechFormat) => {
+	switch (format) {
+		case "mp3":
+			return "audio/mpeg";
+		case "wav":
+			return "audio/wav";
+		case "ogg":
+			return "audio/ogg";
+		case "aac":
+			return "audio/aac";
+		default:
+			throw new Error(`Unsupported audio format: ${format}`);
+	}
 };

@@ -1,4 +1,10 @@
-import { queryAPI, fetchJSON, mapModel, mapVoice } from "./fetch.js";
+import {
+	queryAPI,
+	fetchJSON,
+	mapModel,
+	mapVoice,
+	audioFormatToMime,
+} from "./fetch.js";
 import type {
 	AccessTokenResponse,
 	AccessTokenScope,
@@ -96,11 +102,16 @@ export class Speechify {
 		return token;
 	}
 
-	async #queryAPI(url: string, options?: RequestInit) {
+	async #queryAPI(
+		url: string,
+		jsonPayload?: Record<string, unknown>,
+		options?: RequestInit
+	) {
 		return queryAPI({
 			baseUrl: this.#apiUrl,
 			url,
 			token: this.#getToken(),
+			jsonPayload,
 			options,
 		});
 	}
@@ -158,7 +169,7 @@ export class Speechify {
 	// Delete a voice.
 	// [API Reference](https://docs.sws.speechify.com/reference/deletevoice)
 	async voicesDelete(voiceId: string) {
-		const response = await this.#queryAPI(`/v1/voices/${voiceId}`, {
+		const response = await this.#queryAPI(`/v1/voices/${voiceId}`, undefined, {
 			method: "DELETE",
 		});
 		if (response.status === 404) {
@@ -194,6 +205,8 @@ export class Speechify {
 		} satisfies AccessTokenResponse as AccessTokenResponse;
 	}
 
+	// Generate audio from text.
+	// [API Reference](https://docs.sws.speechify.com/reference/getspeech)
 	async audioGenerate(req: AudioSpeechRequest) {
 		const body = {
 			input: req.input,
@@ -206,7 +219,7 @@ export class Speechify {
 				: undefined,
 		};
 
-		const response = (await this.#fetchJSON("/v1/audio/generate", body, {
+		const response = (await this.#fetchJSON("/v1/audio/speech", body, {
 			method: "POST",
 		})) as AudioSpeechResponseServer;
 
@@ -216,5 +229,32 @@ export class Speechify {
 			billableCharactersCount: response.billable_characters_count,
 			speech_marks: response.speech_marks,
 		} satisfies AudioSpeechResponse as AudioSpeechResponse;
+	}
+
+	// Stream audio from text.
+	// [API Reference](https://docs.sws.speechify.com/reference/getstream)
+	async audioStream(req: AudioSpeechRequest) {
+		const body = {
+			input: req.input,
+			voice_id: req.voiceId,
+			language: req.language,
+			model: req.model,
+			options: req.options
+				? { loudness_normalization: req.options.enableLoudnessNormalization }
+				: undefined,
+		};
+
+		const response = await this.#queryAPI("/v1/audio/stream", body, {
+			method: "POST",
+			headers: {
+				Accept: audioFormatToMime(req.audioFormat ?? "mp3"),
+			},
+		});
+
+		if (!response.body) {
+			throw new Error("Response body is empty");
+		}
+
+		return response.body.getReader();
 	}
 }

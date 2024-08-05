@@ -148,3 +148,12 @@ export interface AudioSpeechResponse {
 	// Speech marks annotate the audio data with metadata about the synthesis process, like word timing or phoneme details.
 	speech_marks: AudioSpeechResponseServer["speech_marks"];
 }
+
+export interface AudioStreamRequest {
+	input: string;
+	voiceId: string;
+	audioFormat?: Exclude<AudioSpeechFormat, "wav">;
+	language?: string;
+	model?: VoiceModelName;
+	options?: AudioSpeechRequestOptions;
+}
