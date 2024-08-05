@@ -40,3 +40,34 @@ export interface VoicesCreateRequest {
 }
 
 export type VoicesCreateResponse = VoiceBaseProps;
+
+export type AccessTokenScope =
+	| "audio:speech"
+	| "audio:stream"
+	| "audio:all"
+	| "voices:read"
+	| "voices:create"
+	| "voices:delete"
+	| "voices:all";
+
+export interface AccessTokenServerResponse {
+	// The access token.
+	access_token: string;
+	// Token expiration time in seconds.
+	expires_in: number;
+	// The space-delimited list of scopes granted by the token.
+	scope: string;
+	// The token type, always "bearer".
+	token_type: "bearer";
+}
+
+export interface AccessTokenResponse {
+	// The access token.
+	accessToken: string;
+	// Token expiration time in seconds.
+	expiresIn: number;
+	// The list of scopes granted by the token.
+	scopes: AccessTokenScope[];
+	// The token type, always "bearer".
+	tokenType: "bearer";
+}

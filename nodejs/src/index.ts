@@ -1,5 +1,8 @@
 import { queryAPI, fetchJSON } from "./fetch.js";
 import type {
+	AccessTokenResponse,
+	AccessTokenScope,
+	AccessTokenServerResponse,
 	VoicesCreateRequest,
 	VoicesCreateResponse,
 	VoicesListResponse,
@@ -47,13 +50,13 @@ export class Speechify {
 		}
 	}
 
-	#checkEnvironment(isApiKeySet: boolean) {
+	#checkEnvironment(expectServer: boolean) {
 		const isBrowser = typeof window !== "undefined";
 
 		/* @todo handle more known clients like Electron apps if we can */
 		const isPublicClient = isBrowser;
 
-		if (!isPublicClient || !isApiKeySet) {
+		if (!isPublicClient || !expectServer) {
 			return;
 		}
 
@@ -141,5 +144,29 @@ export class Speechify {
 		if (response.status !== 204) {
 			throw new Error("Failed to delete voice");
 		}
+	}
+
+	// Issue a short-living access token to be used by the public-client.
+	// [API Reference](https://docs.sws.speechify.com/reference/createaccesstoken)
+	// This method must only be called server-side, and the resultant token should be passed to the client.
+	// Read more about this at https://docs.sws.speechify.com/docs/authentication#access-tokens
+	async issueAccessToken(scope: AccessTokenScope | AccessTokenScope[]) {
+		const scopeString = Array.isArray(scope) ? scope.join(" ") : scope;
+
+		const params = new URLSearchParams({
+			grant_type: "client_credentials",
+			scope: scopeString,
+		});
+
+		const response = await (this.#fetchJSON("/v1/auth/token", {
+			body: params,
+		}) as Promise<AccessTokenServerResponse>);
+
+		return {
+			accessToken: response.access_token,
+			expiresIn: response.expires_in,
+			tokenType: response.token_type,
+			scopes: response.scope.split(" ") as AccessTokenScope[],
+		} satisfies AccessTokenResponse as AccessTokenResponse;
 	}
 }
