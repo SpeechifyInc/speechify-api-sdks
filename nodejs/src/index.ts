@@ -12,6 +12,7 @@ import type {
 	AudioSpeechRequest,
 	AudioSpeechResponse,
 	AudioSpeechResponseServer,
+	AudioStreamRequest,
 	VoicesCreateRequest,
 	VoicesCreateResponse,
 	VoicesCreateResponseServer,
@@ -20,20 +21,47 @@ import type {
 } from "./types.js";
 
 export type { SpeechifyError } from "./fetch.js";
-export type * from "./types.js";
+export type {
+	AccessTokenResponse,
+	AccessTokenScope,
+	AudioSpeechRequest,
+	AudioSpeechRequestOptions,
+	AudioSpeechResponse,
+	AudioStreamRequest,
+	AudioStreamFormat,
+	VoicesCreateRequest,
+	VoicesCreateResponse,
+	VoicesListResponse,
+	VoicesListEntry,
+	AudioSpeechFormat,
+	VoiceModelName,
+	SpeechMark,
+	SpeechMarkChunk,
+	VoiceModel,
+	VoiceLanguage,
+} from "./types.js";
 
+/**
+ * The Speechify client options.
+ */
 export interface SpeechifyOptions {
-	// Strict mode will throw an error if the API key is used in the browser environment.
-	// Otherwise, it will only log a warning.
+	/**
+	 * Strict mode will throw an error if the API key is used in the browser environment.
+	 * Otherwise, it will only log a warning.
+	 */
 	strict?: boolean;
-	// API Key can be used for server-side usage. It is the simplest form, but it's not suitable for
-	// the public client environment.
-	// Access Token is recommended for the public client environment.
-	// Read more about this at https://docs.sws.speechify.com/docs/authentication
+	/**
+	 * API Key can be used for server-side usage. It is the simplest form, but it's not suitable for
+	 * the public client environment.
+	 * Access Token is recommended for the public client environment.
+	 * Read more about this at https://docs.sws.speechify.com/docs/authentication.
+	 */
 	apiKey?: string;
-	// API URL is the base URL for the Speechify API. It is optional and defaults to the production URL,
-	// which is https://api.sws.speechify.com.
-	// If you know what you're doing, you can use this option to point to a different environment, like staging or development.
+	/**
+	 * API URL is the base URL for the Speechify API. It is optional and defaults to the production URL,
+	 * which is https://api.sws.speechify.com.
+	 * If you know what you're doing, you can use this option to point to a different environment, like staging or development.
+	 */
 	apiUrl?: string;
 }
 
@@ -43,6 +71,9 @@ const defaultOptions = {
 	apiUrl: "https://api.sws.speechify.com",
 } as const satisfies SpeechifyOptions;
 
+/**
+ * The Speechify client.
+ */
 export class Speechify {
 	#strict: boolean;
 	#apiKey: string | undefined;
@@ -89,12 +120,18 @@ export class Speechify {
 		}
 	}
 
-	// Set the [access token](https://docs.sws.speechify.com/docs/authentication#access-tokens) for the client.
+	/**
+	 * Set the [access token](https://docs.sws.speechify.com/docs/authentication#access-tokens) for the client.
+	 * @param token The Access Token to set.
+	 */
 	setAccessToken(token: string) {
 		this.#accessToken = token;
 	}
 
-	// Set the [API key](https://docs.sws.speechify.com/docs/authentication#api-keys) for the client.
+	/**
+	 * Set the [API key](https://docs.sws.speechify.com/docs/authentication#api-keys) for the client.
+	 * @param key The API Key to set.
+	 */
 	setApiKey(key: string) {
 		this.#checkEnvironment(!!key);
 		this.#apiKey = key;
@@ -148,8 +185,11 @@ export class Speechify {
 		});
 	}
 
-	// Get the list of available voices.
-	// [API Reference](https://docs.sws.speechify.com/reference/getvoices-1)
+	/**
+	 * Get the list of available voices.
+	 * [API Reference](https://docs.sws.speechify.com/reference/getvoices-1).
+	 * @returns The list of available voices.
+	 */
 	async voicesList() {
 		const response = (await this.#fetchJSON({
 			url: "/v1/voices",
@@ -160,8 +200,12 @@ export class Speechify {
 		) satisfies VoicesListResponse as VoicesListResponse;
 	}
 
-	// Create a new voice.
-	// [API Reference](https://docs.sws.speechify.com/reference/createvoice)
+	/**
+	 * Create a new voice.
+	 * [API Reference](https://docs.sws.speechify.com/reference/createvoice).
+	 * @param req Request details.
+	 * @returns The newly created voice details.
+	 */
 	async voicesCreate(req: VoicesCreateRequest) {
 		const formData = new FormData();
 		formData.append("name", req.name);
@@ -187,8 +231,11 @@ export class Speechify {
 		} satisfies VoicesCreateResponse as VoicesCreateResponse;
 	}
 
-	// Delete a voice.
-	// [API Reference](https://docs.sws.speechify.com/reference/deletevoice)
+	/**
+	 * Delete a voice.
+	 * [API Reference](https://docs.sws.speechify.com/reference/deletevoice).
+	 * @param voiceId The ID of the voice to delete.
+	 */
 	async voicesDelete(voiceId: string) {
 		const response = await this.#queryAPI({
 			url: `/v1/voices/${voiceId}`,
@@ -204,10 +251,16 @@ export class Speechify {
 		}
 	}
 
-	// Issue a short-living access token to be used by the public-client.
-	// [API Reference](https://docs.sws.speechify.com/reference/createaccesstoken)
-	// This method must only be called server-side, and the resultant token should be passed to the client.
-	// Read more about this at https://docs.sws.speechify.com/docs/authentication#access-tokens
+	/**
+	 * Issue a short-living access token to be used by the public-client.
+	 * [API Reference](https://docs.sws.speechify.com/reference/createaccesstoken).
+	 * This method must only be called server-side, and the resultant token should be passed to the client.
+	 * Read more about this at https://docs.sws.speechify.com/docs/authentication#access-tokens.
+	 * You need to call this method regularly to issue the new token and keep it fresh.
+	 * The expiration time is defined by the expiresIn property on the return value.
+	 * @param scope a single scope, or an array of scopes to issue the token for.
+	 * @returns The token details
+	 */
 	async issueAccessToken(scope: AccessTokenScope | AccessTokenScope[]) {
 		if (!this.#apiKey) {
 			throw new Error("API Key is required to issue an access token");
@@ -238,8 +291,12 @@ export class Speechify {
 		} satisfies AccessTokenResponse as AccessTokenResponse;
 	}
 
-	// Generate audio from text.
-	// [API Reference](https://docs.sws.speechify.com/reference/getspeech)
+	/**
+	 * Generate audio from text.
+	 * [API Reference](https://docs.sws.speechify.com/reference/getspeech).
+	 * @param req Request details.
+	 * @returns The object containing raw audio data and additional information.
+	 */
 	async audioGenerate(req: AudioSpeechRequest) {
 		const body = {
 			input: req.input,
@@ -268,9 +325,11 @@ export class Speechify {
 		} satisfies AudioSpeechResponse as AudioSpeechResponse;
 	}
 
-	// Stream audio from text.
-	// [API Reference](https://docs.sws.speechify.com/reference/getstream)
-	async audioStream(req: AudioSpeechRequest) {
+	/**
+	 * Stream audio from text.
+	 * [API Reference](https://docs.sws.speechify.com/reference/getstream).
+	 */
+	async audioStream(req: AudioStreamRequest) {
 		const body = {
 			input: req.input,
 			voice_id: req.voiceId,

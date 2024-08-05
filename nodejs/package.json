@@ -21,7 +21,9 @@
 		}
 	},
 	"scripts": {
-		"build": "./scripts/build.sh"
+		"build:js": "./scripts/build.sh",
+		"build:docs": "typedoc --out docs src/index.ts",
+		"build": "pnpm run \"/^build:.*/\""
 	},
 	"keywords": [
 		"speechify",
@@ -34,6 +36,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^20.0.0",
+		"typedoc": "^0.26.5",
 		"typescript": "^5.5.4"
 	},
 	"volta": {

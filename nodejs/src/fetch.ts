@@ -16,6 +16,11 @@ export interface QueryParams {
 	jsonPayload?: Record<string, unknown>;
 }
 
+/**
+ * Error class that represents Speechify API server errors.
+ * @extends Error
+ * @property statusCode - The HTTP status code of the error.
+ */
 export class SpeechifyError extends Error {
 	constructor(message: string, public statusCode: number) {
 		super(message);

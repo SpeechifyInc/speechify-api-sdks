@@ -1,14 +1,16 @@
 export interface VoiceLanguageServer {
-	// Language code, i.e. en-US.
 	locale: string;
-	// Voice audio preview URL.
 	preview_audio?: string | null;
 }
 
 export interface VoiceLanguage {
-	// Language code, i.e. en-US.
+	/**
+	 * Language code, i.e. en-US.
+	 */
 	locale: VoiceLanguageServer["locale"];
-	// Voice audio preview URL.
+	/**
+	 * Voice audio preview URL.
+	 */
 	previewAudio: VoiceLanguageServer["preview_audio"];
 }
 
@@ -22,21 +24,40 @@ export interface VoiceModelServer {
 }
 
 export interface VoiceModel {
+	/**
+	 * Voice model name.
+	 */
 	name: VoiceModelServer["name"];
+	/**
+	 * Supported languages.
+	 */
 	languages: VoiceLanguage[];
 }
 
 export interface VoiceBasePropsServer {
 	id: string;
 	type: "shared" | "personal";
+
 	display_name: string;
 	models: VoiceModelServer[];
 }
 
 export interface VoiceBaseProps {
+	/**
+	 * The unique identifier of the voice.
+	 */
 	id: VoiceBasePropsServer["id"];
+	/**
+	 * The type of the voice.
+	 */
 	type: VoiceBasePropsServer["type"];
+	/**
+	 * The display name of the voice.
+	 */
 	displayName: VoiceBasePropsServer["display_name"];
+	/**
+	 * The list of models that support this voice.
+	 */
 	models: VoiceModel[];
 }
 
@@ -46,33 +67,64 @@ export interface VoicesListEntryServer extends VoiceBasePropsServer {
 	gender?: "male" | "female" | "notSpecified";
 }
 
+/**
+ * Voice entry in the list of available voices.
+ */
 export interface VoicesListEntry extends VoiceBaseProps {
+	/**
+	 * Voice avatar image URL.
+	 */
 	avatarImage: VoicesListEntryServer["avatar_image"];
+	/**
+	 * Voice gender.
+	 */
 	gender: VoicesListEntryServer["gender"];
 }
 
 export type VoicesListResponseServer = VoicesListEntryServer[];
 
+/**
+ * The list of available voices.
+ */
 export type VoicesListResponse = VoicesListEntry[];
 
+/**
+ * Request details to create a new voice.
+ */
 export interface VoicesCreateRequest {
-	// The name of the voice.
+	/**
+	 * The name of the voice.
+	 */
 	name: string;
-	// The audio sample file to be used for the voice.
+	/**
+	 * The audio sample file to be used for the voice.
+	 */
 	sample: Blob | File;
-	// The user consent that the voice belongs to you, or to someone you represent.
+	/**
+	 * The user consent that the voice belongs to you, or to someone you represent.
+	 */
 	consent: {
-		// The full name of the person who gave the consent.
+		/**
+		 * The full name of the person who gave the consent.
+		 */
 		fullName: string;
-		// The email of the person who gave the consent.
+		/**
+		 * The email of the person who gave the consent.
+		 */
 		email: string;
 	};
 }
 
 export type VoicesCreateResponseServer = VoiceBasePropsServer;
 
+/**
+ * The newly created voice details.
+ */
 export interface VoicesCreateResponse extends VoiceBaseProps {}
 
+/**
+ * The scopes that can be granted by an access token.
+ */
 export type AccessTokenScope =
 	| "audio:speech"
 	| "audio:stream"
@@ -83,39 +135,76 @@ export type AccessTokenScope =
 	| "voices:all";
 
 export interface AccessTokenServerResponse {
-	// The access token.
 	access_token: string;
-	// Token expiration time in seconds.
 	expires_in: number;
-	// The space-delimited list of scopes granted by the token.
 	scope: string;
-	// The token type, always "bearer".
 	token_type: "bearer";
 }
 
 export interface AccessTokenResponse {
-	// The access token.
+	/**
+	 * The access token.
+	 */
 	accessToken: string;
-	// Token expiration time in seconds.
+	/**
+	 * Token expiration time in seconds.
+	 */
 	expiresIn: number;
-	// The list of scopes granted by the token.
+	/**
+	 * The list of scopes granted by the token.
+	 */
 	scopes: AccessTokenScope[];
-	// The token type, always "bearer".
+	/**
+	 * The token type, always "bearer".
+	 */
 	tokenType: "bearer";
 }
 
+/**
+ * The format of the audio speech.
+ */
 export type AudioSpeechFormat = "mp3" | "wav" | "ogg" | "aac";
 
+/**
+ * The format of the audio stream.
+ */
+export type AudioStreamFormat = Exclude<AudioSpeechFormat, "wav">;
 export interface AudioSpeechRequestOptions {
 	enableLoudnessNormalization?: boolean;
 }
 
+/**
+ * Request details to generate audio from text.
+ */
 export interface AudioSpeechRequest {
+	/**
+	 * The text to be synthesized, either [SSML](https://docs.sws.speechify.com/docs/ssml) or plain text.
+	 */
 	input: string;
+	/**
+	 * The voice ID to be used for the synthesis.
+	 * @see {@link VoicesListEntry.id}
+	 */
 	voiceId: string;
+	/**
+	 * The audio format of the synthesized speech.
+	 * @default "mp3"
+	 */
 	audioFormat?: AudioSpeechFormat;
+	/**
+	 * The language code of the text.
+	 * Read about the supported languages [here](https://docs.sws.speechify.com/docs/language-support).
+	 * @example "en-US"
+	 */
 	language?: string;
+	/**
+	 * The voice model to be used for the synthesis.
+	 * Read about the supported models [here](https://docs.sws.speechify.com/docs/text-to-speech-models).
+	 */
 	model?: VoiceModelName;
+	/**
+	 * Additional options for the synthesis.
+	 */
 	options?: AudioSpeechRequestOptions;
 }
 
@@ -129,15 +218,22 @@ export interface SpeechMarkChunkServer {
 }
 
 export interface SpeechMarkServer extends SpeechMarkChunkServer {
-	// Array of NestedChunk, each providing detailed segment information within the synthesized speech.
 	chunks: SpeechMarkChunkServer[];
+}
+
+export interface SpeechMarkChunk extends SpeechMarkChunkServer {}
+
+export interface SpeechMark extends SpeechMarkServer {
+	/**
+	 * Array of NestedChunk, each providing detailed segment information within the synthesized speech.
+	 */
+	chunks: SpeechMarkChunk[];
 }
 
 export interface AudioSpeechResponseServer {
 	audio_data: string;
 	audio_format: AudioSpeechFormat;
 	billable_characters_count: number;
-	// Speech marks annotate the audio data with metadata about the synthesis process, like word timing or phoneme details.
 	speech_marks: SpeechMarkServer[];
 }
 
@@ -145,15 +241,43 @@ export interface AudioSpeechResponse {
 	audioData: Buffer;
 	audioFormat: AudioSpeechResponseServer["audio_format"];
 	billableCharactersCount: AudioSpeechResponseServer["billable_characters_count"];
-	// Speech marks annotate the audio data with metadata about the synthesis process, like word timing or phoneme details.
-	speech_marks: AudioSpeechResponseServer["speech_marks"];
+	/**
+	 * Speech marks annotate the audio data with metadata about the synthesis process, like word timing or phoneme details.
+	 */
+	speech_marks: SpeechMark[];
 }
 
+/**
+ * Request details to stream audio from text.
+ */
 export interface AudioStreamRequest {
+	/**
+	 * The text to be synthesized, either [SSML](https://docs.sws.speechify.com/docs/ssml) or plain text.
+	 */
 	input: string;
+	/**
+	 * The voice ID to be used for the synthesis.
+	 * @see {@link VoicesListEntry.id}
+	 */
 	voiceId: string;
-	audioFormat?: Exclude<AudioSpeechFormat, "wav">;
+	/**
+	 * The audio format of the synthesized speech.
+	 * @default "mp3"
+	 */
+	audioFormat?: AudioStreamFormat;
+	/**
+	 * The language code of the text.
+	 * Read about the supported languages [here](https://docs.sws.speechify.com/docs/language-support).
+	 * @example "en-US"
+	 */
 	language?: string;
+	/**
+	 * The voice model to be used for the synthesis.
+	 * Read about the supported models [here](https://docs.sws.speechify.com/docs/text-to-speech-models).
+	 */
 	model?: VoiceModelName;
+	/**
+	 * Additional options for the synthesis.
+	 */
 	options?: AudioSpeechRequestOptions;
 }
