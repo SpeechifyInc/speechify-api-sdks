@@ -1,5 +1,9 @@
 import { queryAPI, fetchJSON } from "./fetch.js";
-import type { CreateVoiceOptions } from "./types.js";
+import type {
+	VoicesCreateRequest,
+	VoicesCreateResponse,
+	VoicesListResponse,
+} from "./types.js";
 
 export type { SpeechifyError } from "./fetch.js";
 export type * from "./types.js";
@@ -105,16 +109,16 @@ export class Speechify {
 	// Get the list of available voices.
 	// [API Reference](https://docs.sws.speechify.com/reference/getvoices-1)
 	voicesList() {
-		return this.#fetchJSON("/v1/voices");
+		return this.#fetchJSON("/v1/voices") as Promise<VoicesListResponse>;
 	}
 
 	// Create a new voice.
 	// [API Reference](https://docs.sws.speechify.com/reference/createvoice)
-	voicesCreate(options: CreateVoiceOptions) {
+	voicesCreate(req: VoicesCreateRequest) {
 		const formData = new FormData();
-		formData.append("name", options.name);
-		formData.append("sample", options.sample);
-		formData.append("consent", JSON.stringify(options.consent));
+		formData.append("name", req.name);
+		formData.append("sample", req.sample);
+		formData.append("consent", JSON.stringify(req.consent));
 
 		return this.#fetchJSON("/v1/voices", {
 			method: "POST",
@@ -122,9 +126,11 @@ export class Speechify {
 			headers: {
 				"Content-Type": "multipart/form-data",
 			},
-		});
+		}) as Promise<VoicesCreateResponse>;
 	}
 
+	// Delete a voice.
+	// [API Reference](https://docs.sws.speechify.com/reference/deletevoice)
 	async voicesDelete(voiceId: string) {
 		const response = await this.#queryAPI(`/v1/voices/${voiceId}`, {
 			method: "DELETE",

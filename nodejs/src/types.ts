@@ -1,4 +1,31 @@
-export interface CreateVoiceOptions {
+interface VoiceLanguage {
+	// Language code, i.e. en-US.
+	locale: string;
+	// Voice audio preview URL.
+	preview_audio?: string | null;
+}
+
+interface VoiceModel {
+	name: "simba-english" | "simba-multilingual" | "simba-turbo";
+	languages: VoiceLanguage[];
+}
+
+interface VoiceBaseProps {
+	id: string;
+	type: "shared" | "personal";
+	display_name: string;
+	models: VoiceModel[];
+}
+
+export interface VoicesListEntry extends VoiceBaseProps {
+	// Voice avatar image URL.
+	avatar_image?: string | null;
+	gender?: "male" | "female" | "notSpecified";
+}
+
+export type VoicesListResponse = VoicesListEntry[];
+
+export interface VoicesCreateRequest {
 	// The name of the voice.
 	name: string;
 	// The audio sample file to be used for the voice.
@@ -11,3 +38,5 @@ export interface CreateVoiceOptions {
 		email: string;
 	};
 }
+
+export type VoicesCreateResponse = VoiceBaseProps;
