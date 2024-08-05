@@ -23,7 +23,7 @@
 		"strictNullChecks": true,
 		"forceConsistentCasingInFileNames": true,
 
-		/* Transpiling with TypeScript: */
+		/* Transpiling with TypeScript */
 		"module": "NodeNext",
 		"outDir": "lib",
 		"sourceMap": true,

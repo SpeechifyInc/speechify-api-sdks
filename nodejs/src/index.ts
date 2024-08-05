@@ -208,18 +208,18 @@ export class Speechify {
 	 */
 	async voicesCreate(req: VoicesCreateRequest) {
 		const formData = new FormData();
-		formData.append("name", req.name);
-		formData.append("sample", req.sample);
-		formData.append("consent", JSON.stringify(req.consent));
+		formData.set("name", req.name);
+		formData.set(
+			"sample",
+			req.sample instanceof Buffer ? new Blob([req.sample]) : req.sample
+		);
+		formData.set("consent", JSON.stringify(req.consent));
 
 		const response = (await this.#fetchJSON({
 			url: "/v1/voices",
 			options: {
 				method: "POST",
 				body: formData,
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
 			},
 		})) as VoicesCreateResponseServer;
 

@@ -99,7 +99,7 @@ export interface VoicesCreateRequest {
 	/**
 	 * The audio sample file to be used for the voice.
 	 */
-	sample: Blob | File;
+	sample: Blob | Buffer;
 	/**
 	 * The user consent that the voice belongs to you, or to someone you represent.
 	 */
