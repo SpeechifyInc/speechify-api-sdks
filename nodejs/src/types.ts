@@ -12,8 +12,12 @@ export interface VoiceLanguage {
 	previewAudio: VoiceLanguageServer["preview_audio"];
 }
 
+export type VoiceModelName =
+	| "simba-english"
+	| "simba-multilingual"
+	| "simba-turbo";
 export interface VoiceModelServer {
-	name: "simba-english" | "simba-multilingual" | "simba-turbo";
+	name: VoiceModelName;
 	languages: VoiceLanguageServer[];
 }
 
@@ -98,4 +102,49 @@ export interface AccessTokenResponse {
 	scopes: AccessTokenScope[];
 	// The token type, always "bearer".
 	tokenType: "bearer";
+}
+
+export type AudioSpeechFormat = "mp3" | "wav" | "ogg" | "aac";
+
+export interface AudioSpeechRequestOptions {
+	enableLoudnessNormalization?: boolean;
+}
+
+export interface AudioSpeechRequest {
+	input: string;
+	voiceId: string;
+	audioFormat?: AudioSpeechFormat;
+	language?: string;
+	model?: VoiceModelName;
+	options?: AudioSpeechRequestOptions;
+}
+
+export interface SpeechMarkChunkServer {
+	type: string;
+	value: string;
+	start: number;
+	end: number;
+	start_time: number;
+	end_time: number;
+}
+
+export interface SpeechMarkServer extends SpeechMarkChunkServer {
+	// Array of NestedChunk, each providing detailed segment information within the synthesized speech.
+	chunks: SpeechMarkChunkServer[];
+}
+
+export interface AudioSpeechResponseServer {
+	audio_data: string;
+	audio_format: AudioSpeechFormat;
+	billable_characters_count: number;
+	// Speech marks annotate the audio data with metadata about the synthesis process, like word timing or phoneme details.
+	speech_marks: SpeechMarkServer[];
+}
+
+export interface AudioSpeechResponse {
+	audioData: Buffer;
+	audioFormat: AudioSpeechResponseServer["audio_format"];
+	billableCharactersCount: AudioSpeechResponseServer["billable_characters_count"];
+	// Speech marks annotate the audio data with metadata about the synthesis process, like word timing or phoneme details.
+	speech_marks: AudioSpeechResponseServer["speech_marks"];
 }

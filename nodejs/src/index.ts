@@ -3,8 +3,9 @@ import type {
 	AccessTokenResponse,
 	AccessTokenScope,
 	AccessTokenServerResponse,
-	VoiceLanguage,
-	VoiceModel,
+	AudioSpeechRequest,
+	AudioSpeechResponse,
+	AudioSpeechResponseServer,
 	VoicesCreateRequest,
 	VoicesCreateResponse,
 	VoicesCreateResponseServer,
@@ -104,11 +105,16 @@ export class Speechify {
 		});
 	}
 
-	async #fetchJSON(url: string, options?: RequestInit) {
+	async #fetchJSON(
+		url: string,
+		jsonPayload?: Record<string, unknown>,
+		options?: RequestInit
+	) {
 		return fetchJSON({
 			baseUrl: this.#apiUrl,
 			url,
 			token: this.#getToken(),
+			jsonPayload,
 			options,
 		});
 	}
@@ -133,7 +139,7 @@ export class Speechify {
 		formData.append("sample", req.sample);
 		formData.append("consent", JSON.stringify(req.consent));
 
-		const response = (await this.#fetchJSON("/v1/voices", {
+		const response = (await this.#fetchJSON("/v1/voices", undefined, {
 			method: "POST",
 			body: formData,
 			headers: {
@@ -175,8 +181,9 @@ export class Speechify {
 			scope: scopeString,
 		});
 
-		const response = await (this.#fetchJSON("/v1/auth/token", {
+		const response = await (this.#fetchJSON("/v1/auth/token", undefined, {
 			body: params,
+			method: "POST",
 		}) as Promise<AccessTokenServerResponse>);
 
 		return {
@@ -185,5 +192,29 @@ export class Speechify {
 			tokenType: response.token_type,
 			scopes: response.scope.split(" ") as AccessTokenScope[],
 		} satisfies AccessTokenResponse as AccessTokenResponse;
+	}
+
+	async audioGenerate(req: AudioSpeechRequest) {
+		const body = {
+			input: req.input,
+			voice_id: req.voiceId,
+			audio_format: req.audioFormat ?? "mp3",
+			language: req.language,
+			model: req.model,
+			options: req.options
+				? { loudness_normalization: req.options.enableLoudnessNormalization }
+				: undefined,
+		};
+
+		const response = (await this.#fetchJSON("/v1/audio/generate", body, {
+			method: "POST",
+		})) as AudioSpeechResponseServer;
+
+		return {
+			audioData: Buffer.from(response.audio_data, "base64"),
+			audioFormat: response.audio_format,
+			billableCharactersCount: response.billable_characters_count,
+			speech_marks: response.speech_marks,
+		} satisfies AudioSpeechResponse as AudioSpeechResponse;
 	}
 }
