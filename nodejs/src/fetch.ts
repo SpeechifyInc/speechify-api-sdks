@@ -18,7 +18,6 @@ export interface QueryParams {
 
 /**
  * Error class that represents Speechify API server errors.
- * @extends Error
  * @property statusCode - The HTTP status code of the error.
  */
 export class SpeechifyError extends Error {
