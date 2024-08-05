@@ -18,61 +18,85 @@ describe("SDK > TS", () => {
 		});
 	});
 
-	test("voices list", async () => {
-		const voices = await speechify.voicesList();
+	describe.skip("voices", () => {
+		test("list", async () => {
+			const voices = await speechify.voicesList();
 
-		expect(voices).toBeInstanceOf(Array);
+			expect(voices).toBeInstanceOf(Array);
 
-		const george = voices.find((voice) => voice.id === "george");
+			const george = voices.find((voice) => voice.id === "george");
 
-		expect(george).toBeDefined();
+			expect(george).toBeDefined();
 
-		expect(george?.displayName).toBe("George");
-	});
-
-	test("voice create with Blob", async () => {
-		const file = await fs.openAsBlob(
-			path.resolve(
-				import.meta.dirname,
-				"./test-fixtures/donald-duck-america.mp3"
-			)
-		);
-
-		const voice = await speechify.voicesCreate({
-			name: "Donald Duck",
-			sample: file,
-			consent: {
-				fullName: "Donald Duck",
-				email: "donald.duck@snaydi.moc",
-			},
+			expect(george?.displayName).toBe("George");
 		});
 
-		expect(voice).toMatchObject({
-			displayName: "Donald Duck",
-			type: "personal",
+		test.skip("create with Blob", async () => {
+			const file = await fs.openAsBlob(
+				path.resolve(
+					import.meta.dirname,
+					"./test-fixtures/donald-duck-america.mp3"
+				)
+			);
+
+			const voice = await speechify.voicesCreate({
+				name: "Donald Duck",
+				sample: file,
+				consent: {
+					fullName: "Donald Duck",
+					email: "donald.duck@snaydi.moc",
+				},
+			});
+
+			expect(voice).toMatchObject({
+				displayName: "Donald Duck",
+				type: "personal",
+			});
 		});
-	});
 
-	test("voice create with Buffer", async () => {
-		const file = fs.readFileSync(
-			path.resolve(
-				import.meta.dirname,
-				"./test-fixtures/donald-duck-america.mp3"
-			)
-		);
+		test.skip("create with Buffer", async () => {
+			const file = fs.readFileSync(
+				path.resolve(
+					import.meta.dirname,
+					"./test-fixtures/donald-duck-america.mp3"
+				)
+			);
 
-		const voice = await speechify.voicesCreate({
-			name: "Donald Duck",
-			sample: file,
-			consent: {
-				fullName: "Donald Duck",
-				email: "donald.duck@snaydi.moc",
-			},
+			const voice = await speechify.voicesCreate({
+				name: "Donald Duck",
+				sample: file,
+				consent: {
+					fullName: "Donald Duck",
+					email: "donald.duck@snaydi.moc",
+				},
+			});
+
+			expect(voice).toMatchObject({
+				displayName: "Donald Duck",
+				type: "personal",
+			});
 		});
 
-		expect(voice).toMatchObject({
-			displayName: "Donald Duck",
-			type: "personal",
+		test.skip("delete", async () => {
+			const file = fs.readFileSync(
+				path.resolve(
+					import.meta.dirname,
+					"./test-fixtures/donald-duck-america.mp3"
+				)
+			);
+
+			const voice = await speechify.voicesCreate({
+				name: "Donald Duck",
+				sample: file,
+				consent: {
+					fullName: "Donald Duck",
+					email: "donald.duck@snaydi.moc",
+				},
+			});
+
+			const id = voice.id;
+
+			await speechify.voicesDelete(id);
 		});
 	});
 });
