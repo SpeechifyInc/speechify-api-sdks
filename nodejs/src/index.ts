@@ -61,26 +61,32 @@ export class Speechify {
 		}
 	}
 
-	#checkEnvironment(expectServer: boolean) {
+	#errOrWarn(message: string) {
+		if (this.#strict) {
+			throw new Error(message);
+		}
+		console.warn(message);
+	}
+
+	#checkEnvironment(isApiKeySet: boolean) {
 		const isBrowser = typeof window !== "undefined";
 
 		/* @todo handle more known clients like Electron apps if we can */
 		const isPublicClient = isBrowser;
 
-		if (!isPublicClient || !expectServer) {
-			return;
-		}
-
-		const message = `
+		if (isPublicClient && isApiKeySet) {
+			return this.#errOrWarn(`
 			You are using the API key in the browser environment.
 			This is strictly not recommended, as it is exposing your Speechify account for anyone to use.
 			Instead, use the API key in a server environment or use the Access Token in the browser.
-			Read more about this at https://docs.sws.speechify.com/docs/authentication`;
-
-		if (this.#strict) {
-			throw new Error(message);
+			Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 		}
-		console.warn(message);
+
+		if (!isPublicClient && !isApiKeySet) {
+			return this.#errOrWarn(`
+			You are not using the API Key in the server environment when it's required.
+			Read more about this at https://docs.sws.speechify.com/docs/authentication`);
+		}
 	}
 
 	// Set the [access token](https://docs.sws.speechify.com/docs/authentication#access-tokens) for the client.
@@ -102,29 +108,41 @@ export class Speechify {
 		return token;
 	}
 
-	async #queryAPI(
-		url: string,
-		jsonPayload?: Record<string, unknown>,
-		options?: RequestInit
-	) {
+	async #queryAPI({
+		url,
+		jsonPayload,
+		tokenOverride,
+		options,
+	}: {
+		url: string;
+		jsonPayload?: Record<string, unknown>;
+		tokenOverride?: string;
+		options?: RequestInit;
+	}) {
 		return queryAPI({
 			baseUrl: this.#apiUrl,
 			url,
-			token: this.#getToken(),
+			token: tokenOverride ?? this.#getToken(),
 			jsonPayload,
 			options,
 		});
 	}
 
-	async #fetchJSON(
-		url: string,
-		jsonPayload?: Record<string, unknown>,
-		options?: RequestInit
-	) {
+	async #fetchJSON({
+		url,
+		jsonPayload,
+		tokenOverride,
+		options,
+	}: {
+		url: string;
+		jsonPayload?: Record<string, unknown>;
+		tokenOverride?: string;
+		options?: RequestInit;
+	}) {
 		return fetchJSON({
 			baseUrl: this.#apiUrl,
 			url,
-			token: this.#getToken(),
+			token: tokenOverride ?? this.#getToken(),
 			jsonPayload,
 			options,
 		});
@@ -133,9 +151,9 @@ export class Speechify {
 	// Get the list of available voices.
 	// [API Reference](https://docs.sws.speechify.com/reference/getvoices-1)
 	async voicesList() {
-		const response = (await this.#fetchJSON(
-			"/v1/voices"
-		)) as VoicesListResponseServer;
+		const response = (await this.#fetchJSON({
+			url: "/v1/voices",
+		})) as VoicesListResponseServer;
 
 		return response.map(
 			mapVoice
@@ -150,11 +168,14 @@ export class Speechify {
 		formData.append("sample", req.sample);
 		formData.append("consent", JSON.stringify(req.consent));
 
-		const response = (await this.#fetchJSON("/v1/voices", undefined, {
-			method: "POST",
-			body: formData,
-			headers: {
-				"Content-Type": "multipart/form-data",
+		const response = (await this.#fetchJSON({
+			url: "/v1/voices",
+			options: {
+				method: "POST",
+				body: formData,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
 			},
 		})) as VoicesCreateResponseServer;
 
@@ -169,8 +190,11 @@ export class Speechify {
 	// Delete a voice.
 	// [API Reference](https://docs.sws.speechify.com/reference/deletevoice)
 	async voicesDelete(voiceId: string) {
-		const response = await this.#queryAPI(`/v1/voices/${voiceId}`, undefined, {
-			method: "DELETE",
+		const response = await this.#queryAPI({
+			url: `/v1/voices/${voiceId}`,
+			options: {
+				method: "DELETE",
+			},
 		});
 		if (response.status === 404) {
 			throw new Error("Voice not found");
@@ -185,6 +209,11 @@ export class Speechify {
 	// This method must only be called server-side, and the resultant token should be passed to the client.
 	// Read more about this at https://docs.sws.speechify.com/docs/authentication#access-tokens
 	async issueAccessToken(scope: AccessTokenScope | AccessTokenScope[]) {
+		if (!this.#apiKey) {
+			throw new Error("API Key is required to issue an access token");
+		}
+		this.#checkEnvironment(true);
+
 		const scopeString = Array.isArray(scope) ? scope.join(" ") : scope;
 
 		const params = new URLSearchParams({
@@ -192,9 +221,13 @@ export class Speechify {
 			scope: scopeString,
 		});
 
-		const response = await (this.#fetchJSON("/v1/auth/token", undefined, {
-			body: params,
-			method: "POST",
+		const response = await (this.#fetchJSON({
+			url: "/v1/auth/token",
+			tokenOverride: this.#apiKey,
+			options: {
+				body: params,
+				method: "POST",
+			},
 		}) as Promise<AccessTokenServerResponse>);
 
 		return {
@@ -219,9 +252,13 @@ export class Speechify {
 				: undefined,
 		};
 
-		const response = (await this.#fetchJSON("/v1/audio/speech", body, {
-			method: "POST",
-		})) as AudioSpeechResponseServer;
+		const response = await (this.#fetchJSON({
+			url: "/v1/audio/speech",
+			jsonPayload: body,
+			options: {
+				method: "POST",
+			},
+		}) as Promise<AudioSpeechResponseServer>);
 
 		return {
 			audioData: Buffer.from(response.audio_data, "base64"),
@@ -244,10 +281,14 @@ export class Speechify {
 				: undefined,
 		};
 
-		const response = await this.#queryAPI("/v1/audio/stream", body, {
-			method: "POST",
-			headers: {
-				Accept: audioFormatToMime(req.audioFormat ?? "mp3"),
+		const response = await this.#queryAPI({
+			url: "/v1/audio/stream",
+			jsonPayload: body,
+			options: {
+				method: "POST",
+				headers: {
+					Accept: audioFormatToMime(req.audioFormat ?? "mp3"),
+				},
 			},
 		});
 
@@ -255,6 +296,6 @@ export class Speechify {
 			throw new Error("Response body is empty");
 		}
 
-		return response.body.getReader();
+		return response.body;
 	}
 }
