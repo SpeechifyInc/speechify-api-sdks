@@ -1,27 +1,53 @@
-interface VoiceLanguage {
+export interface VoiceLanguageServer {
 	// Language code, i.e. en-US.
 	locale: string;
 	// Voice audio preview URL.
 	preview_audio?: string | null;
 }
 
-interface VoiceModel {
+export interface VoiceLanguage {
+	// Language code, i.e. en-US.
+	locale: VoiceLanguageServer["locale"];
+	// Voice audio preview URL.
+	previewAudio: VoiceLanguageServer["preview_audio"];
+}
+
+export interface VoiceModelServer {
 	name: "simba-english" | "simba-multilingual" | "simba-turbo";
+	languages: VoiceLanguageServer[];
+}
+
+export interface VoiceModel {
+	name: VoiceModelServer["name"];
 	languages: VoiceLanguage[];
 }
 
-interface VoiceBaseProps {
+export interface VoiceBasePropsServer {
 	id: string;
 	type: "shared" | "personal";
 	display_name: string;
+	models: VoiceModelServer[];
+}
+
+export interface VoiceBaseProps {
+	id: VoiceBasePropsServer["id"];
+	type: VoiceBasePropsServer["type"];
+	displayName: VoiceBasePropsServer["display_name"];
 	models: VoiceModel[];
 }
 
-export interface VoicesListEntry extends VoiceBaseProps {
+export interface VoicesListEntryServer extends VoiceBasePropsServer {
 	// Voice avatar image URL.
 	avatar_image?: string | null;
 	gender?: "male" | "female" | "notSpecified";
 }
+
+export interface VoicesListEntry extends VoiceBaseProps {
+	avatarImage: VoicesListEntryServer["avatar_image"];
+	gender: VoicesListEntryServer["gender"];
+}
+
+export type VoicesListResponseServer = VoicesListEntryServer[];
 
 export type VoicesListResponse = VoicesListEntry[];
 
@@ -39,7 +65,9 @@ export interface VoicesCreateRequest {
 	};
 }
 
-export type VoicesCreateResponse = VoiceBaseProps;
+export type VoicesCreateResponseServer = VoiceBasePropsServer;
+
+export interface VoicesCreateResponse extends VoiceBaseProps {}
 
 export type AccessTokenScope =
 	| "audio:speech"

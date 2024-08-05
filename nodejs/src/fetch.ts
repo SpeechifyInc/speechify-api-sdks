@@ -1,3 +1,12 @@
+import type {
+	VoiceLanguage,
+	VoiceLanguageServer,
+	VoiceModel,
+	VoiceModelServer,
+	VoicesListEntry,
+	VoicesListEntryServer,
+} from "./types.js";
+
 export interface QueryParams {
 	baseUrl: string;
 	url: string;
@@ -71,4 +80,29 @@ export const fetchJSON = async ({
 	if (parseJson) {
 		return response.json();
 	}
+};
+
+export const mapLanguage = (lang: VoiceLanguageServer): VoiceLanguage => {
+	return {
+		locale: lang.locale,
+		previewAudio: lang.preview_audio,
+	} satisfies VoiceLanguage;
+};
+
+export const mapModel = (model: VoiceModelServer): VoiceModel => {
+	return {
+		name: model.name,
+		languages: model.languages.map(mapLanguage),
+	} satisfies VoiceModel;
+};
+
+export const mapVoice = (voice: VoicesListEntryServer): VoicesListEntry => {
+	return {
+		id: voice.id,
+		type: voice.type,
+		displayName: voice.display_name,
+		models: voice.models.map(mapModel),
+		gender: voice.gender,
+		avatarImage: voice.avatar_image,
+	} satisfies VoicesListEntry;
 };
