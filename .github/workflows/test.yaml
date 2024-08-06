@@ -33,4 +33,4 @@ jobs:
 
       - run: cd nodejs && corepack enable && pnpm install
 
-      - run: cd nodejs && pnpm test
+      - run: cd nodejs && pnpm build && pnpm test

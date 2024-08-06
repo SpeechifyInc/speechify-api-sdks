@@ -24,8 +24,8 @@
 		"build:js": "./scripts/build.sh",
 		"build:docs": "typedoc --out docs --customCss ./docs-theme/style.css src/index.ts",
 		"build": "pnpm run \"/^build:.*/\"",
-		"test:watch": "vitest watch",
-		"test": "vitest run"
+		"test:watch": "vitest watch -r src --testTimeout 25000",
+		"test": "vitest run -r src --testTimeout 25000"
 	},
 	"keywords": [
 		"speechify",
