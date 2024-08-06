@@ -32,16 +32,18 @@ describe("SDK > TS", () => {
 		});
 
 		test("create with Blob", async () => {
-			const file = await fs.openAsBlob(
+			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
 					"./test-fixtures/donald-duck-america.mp3"
 				)
 			);
 
+			const blob = new Blob([file], { type: "audio/mpeg" });
+
 			const voice = await speechify.voicesCreate({
 				name: "Donald Duck",
-				sample: file,
+				sample: blob,
 				consent: {
 					fullName: "Donald Duck",
 					email: "donald.duck@snaydi.moc",
