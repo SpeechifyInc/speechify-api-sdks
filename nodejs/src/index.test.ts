@@ -18,7 +18,7 @@ describe("SDK > TS", () => {
 		});
 	});
 
-	describe.skip("voices", () => {
+	describe("voices", () => {
 		test("list", async () => {
 			const voices = await speechify.voicesList();
 
@@ -31,7 +31,7 @@ describe("SDK > TS", () => {
 			expect(george?.displayName).toBe("George");
 		});
 
-		test.skip("create with Blob", async () => {
+		test("create with Blob", async () => {
 			const file = await fs.openAsBlob(
 				path.resolve(
 					import.meta.dirname,
@@ -54,7 +54,7 @@ describe("SDK > TS", () => {
 			});
 		});
 
-		test.skip("create with Buffer", async () => {
+		test("create with Buffer", async () => {
 			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
@@ -77,7 +77,7 @@ describe("SDK > TS", () => {
 			});
 		});
 
-		test.skip("delete", async () => {
+		test("delete", async () => {
 			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
@@ -100,7 +100,7 @@ describe("SDK > TS", () => {
 		});
 	});
 
-	describe.skip("access token", () => {
+	describe("access token", () => {
 		test("issue", async () => {
 			const token = await speechify.accessTokenIssue("audio:speech");
 
@@ -166,6 +166,37 @@ describe("SDK > TS", () => {
 			const voices = await speechify.voicesList();
 
 			expect(voices).toBeInstanceOf(Array);
+		});
+	});
+
+	describe("audio", () => {
+		test("generate", async () => {
+			const speech = await speechify.audioGenerate({
+				input: "Hello, world!",
+				audioFormat: "mp3",
+				voiceId: "george",
+			});
+
+			expect(speech.audioData).toBeInstanceOf(Buffer);
+		});
+
+		test("generate with SSML", async () => {
+			const speech = await speechify.audioGenerate({
+				input: "<speak>Hello, world!</speak>",
+				audioFormat: "mp3",
+				voiceId: "george",
+			});
+
+			expect(speech.audioData).toBeInstanceOf(Buffer);
+		});
+
+		test("stream", async () => {
+			const stream = await speechify.audioStream({
+				input: "Hello, world!",
+				voiceId: "george",
+			});
+
+			expect(stream).toBeInstanceOf(ReadableStream);
 		});
 	});
 });
