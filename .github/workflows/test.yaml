@@ -16,6 +16,9 @@ jobs:
 
     environment: node-test
 
+    env:
+      SPEECHIFY_API_KEY: ${{ secrets.SPEECHIFY_API_KEY }}
+
     strategy:
       matrix:
         node-version: ["18", "20", "22"]
