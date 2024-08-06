@@ -124,7 +124,7 @@ export class Speechify {
 	 * Set the [access token](https://docs.sws.speechify.com/docs/authentication#access-tokens) for the client.
 	 * @param token The Access Token to set.
 	 */
-	setAccessToken(token: string) {
+	setAccessToken(token: string | undefined) {
 		this.#accessToken = token;
 	}
 
@@ -132,7 +132,7 @@ export class Speechify {
 	 * Set the [API key](https://docs.sws.speechify.com/docs/authentication#api-keys) for the client.
 	 * @param key The API Key to set.
 	 */
-	setApiKey(key: string) {
+	setApiKey(key: string | undefined) {
 		this.#checkEnvironment(!!key);
 		this.#apiKey = key;
 	}
@@ -261,7 +261,7 @@ export class Speechify {
 	 * @param scope a single scope, or an array of scopes to issue the token for.
 	 * @returns The token details
 	 */
-	async issueAccessToken(scope: AccessTokenScope | AccessTokenScope[]) {
+	async accessTokenIssue(scope: AccessTokenScope | AccessTokenScope[]) {
 		if (!this.#apiKey) {
 			throw new Error("API Key is required to issue an access token");
 		}

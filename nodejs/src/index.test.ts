@@ -99,4 +99,73 @@ describe("SDK > TS", () => {
 			await speechify.voicesDelete(id);
 		});
 	});
+
+	describe.skip("access token", () => {
+		test("issue", async () => {
+			const token = await speechify.accessTokenIssue("audio:speech");
+
+			expect(token).toMatchObject({
+				accessToken: expect.any(String),
+				expiresIn: 3600,
+				scopes: ["audio:speech"],
+				tokenType: "bearer",
+			});
+		});
+
+		test("issue with multiple scopes", async () => {
+			const token = await speechify.accessTokenIssue([
+				"audio:speech",
+				"voices:read",
+			]);
+
+			expect(token).toMatchObject({
+				accessToken: expect.any(String),
+				expiresIn: 3600,
+				scopes: ["audio:speech", "voices:read"],
+				tokenType: "bearer",
+			});
+		});
+
+		test("use", async () => {
+			const token = await speechify.accessTokenIssue("audio:speech");
+
+			speechify.setAccessToken(token.accessToken);
+
+			const speech = await speechify.audioGenerate({
+				input: "Hello, world!",
+				audioFormat: "mp3",
+				voiceId: "george",
+			});
+
+			expect(speech.audioData).toBeInstanceOf(Buffer);
+
+			speechify.setAccessToken(undefined);
+		});
+
+		test("use with wrong scope", async () => {
+			const token = await speechify.accessTokenIssue("audio:speech");
+
+			speechify.setAccessToken(token.accessToken);
+
+			await expect(speechify.voicesList()).rejects.toThrowError(
+				/none of the sufficient scopes found/
+			);
+
+			speechify.setAccessToken(undefined);
+		});
+
+		test("use, then remove: API key is used again", async () => {
+			const token = await speechify.accessTokenIssue("audio:speech");
+
+			speechify.setAccessToken(token.accessToken);
+
+			await expect(speechify.voicesList()).rejects.toThrowError();
+
+			speechify.setAccessToken(undefined);
+
+			const voices = await speechify.voicesList();
+
+			expect(voices).toBeInstanceOf(Array);
+		});
+	});
 });
