@@ -19,6 +19,7 @@ import type {
 	VoicesListResponse,
 	VoicesListResponseServer,
 	AccessTokenGetter,
+	SpeechifyAccessTokenManagerOptions,
 } from "./types.js";
 
 export type { SpeechifyError } from "./fetch.js";
@@ -40,7 +41,9 @@ export type {
 	SpeechMarkChunk,
 	VoiceModel,
 	VoiceLanguage,
+	AccessTokenServerResponse,
 	AccessTokenGetter,
+	SpeechifyAccessTokenManagerOptions,
 } from "./types.js";
 
 /**
@@ -363,27 +366,47 @@ export class Speechify {
 
 type TimeoutID = ReturnType<typeof setTimeout>;
 
+/**
+ * The Speechify Access Token Manager handles the access token issue, refresh, and erasing
+ * in accordance with the end-user auth status change.
+ * You have to implement the AccessTokenGetter function to obtain the access token
+ * (typically it should be a plain HTTP call to your own server endpoint calling
+ * the [token issue API](https://docs.sws.speechify.com/reference/createaccesstoken)).
+ * This API is also exposed via the SDK as the {@link Speechify.accessTokenIssue} method.
+ * Read more [about the Speechify authentication](https://docs.sws.speechify.com/docs/authentication).
+ */
 export class SpeechifyAccessTokenManager {
 	#client: Speechify;
 	#getToken: AccessTokenGetter;
 	#isAuthenticated = false;
 	#tokenRefreshTimeout: TimeoutID | undefined;
 
+	/**
+	 * @param speechifyClient An instance of Speechify, to be managed by this manager.
+	 * @param getToken The async function to obtain the access token.
+	 * @param options The Speechify Access Token Manager init options.
+	 */
 	constructor(
 		speechifyClient: Speechify,
 		getToken: AccessTokenGetter,
-		{ isAuthenticated = false }: { isAuthenticated?: boolean } = {}
+		options: SpeechifyAccessTokenManagerOptions = {}
 	) {
+		const { isAuthenticated = false } = options;
+
 		this.#client = speechifyClient;
 		this.#getToken = getToken;
 		this.setIsAuthenticated(isAuthenticated);
 	}
 
-	setIsAuthenticated(value: boolean) {
-		if (this.#isAuthenticated === Boolean(value)) {
+	/**
+	 * Set the user authentication status. Call this method when the user logs in or logs out.
+	 * It is safe to call this method multiple times with the same value.
+	 */
+	setIsAuthenticated(isAuthenticated: boolean) {
+		if (this.#isAuthenticated === Boolean(isAuthenticated)) {
 			return;
 		}
-		this.#isAuthenticated = Boolean(value);
+		this.#isAuthenticated = Boolean(isAuthenticated);
 
 		if (!this.#isAuthenticated) {
 			clearTimeout(this.#tokenRefreshTimeout);

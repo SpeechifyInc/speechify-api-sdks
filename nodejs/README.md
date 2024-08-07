@@ -49,7 +49,7 @@ webServer.post("/speechify-token", async (req, res) => {
 		res.status(401).send("Unauthorized");
 		return;
 	}
-	const tokenResponse = await speechify.accessTokenIssue();
+	const tokenResponse = await speechify.accessTokenIssue("audio:all");
 	res.json(tokenResponse);
 });
 ```
@@ -86,3 +86,34 @@ generateButton.addEventListener("click", async () => {
 	audioElement.play();
 });
 ```
+
+### Client-Side Access Token Auto-Management
+
+You can use the provided `SpeechifyAccessTokenManager` class to have the access token fully managed, including the auto-refresh before it expires.
+
+```typescript
+import { Speechify, SpeechifyAccessTokenManager } from "@speechify/api-sdk";
+
+const speechify = new Speechify();
+
+const getToken = async () => {
+	const res = await fetch("/speechify-token", {
+		method: "POST",
+	});
+	return res.json();
+};
+
+const tokenManager = new SpeechifyAccessTokenManager(speechify, getToken, {
+	isAuthenticated: authSystem.isAuthenticated,
+});
+
+authSystem.on("login", () => {
+	tokenManager.setIsAuthenticated(true);
+});
+
+authSystem.on("logout", () => {
+	tokenManager.setIsAuthenticated(false);
+});
+```
+
+With this setup in place, you can use the `speechify` client without worrying about the access token management.
