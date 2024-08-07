@@ -1,3 +1,5 @@
+import packageJson from "../package.json";
+
 import type {
 	AudioSpeechFormat,
 	VoiceLanguage,
@@ -21,7 +23,10 @@ export interface QueryParams {
  * @property statusCode - The HTTP status code of the error.
  */
 export class SpeechifyError extends Error {
-	constructor(message: string, public statusCode: number) {
+	constructor(
+		message: string,
+		public statusCode: number,
+	) {
 		super(message);
 	}
 }
@@ -38,6 +43,9 @@ export const queryAPI = async ({
 
 	headers.set("Authorization", `Bearer ${token}`);
 
+	headers.set("X-Speechify-SDK", "nodejs");
+	headers.set("X-Speechify-SDK-Version", packageJson.version);
+
 	if (jsonPayload) {
 		options.body = JSON.stringify(jsonPayload);
 	}
@@ -53,7 +61,7 @@ export const queryAPI = async ({
 		const error = await response.text();
 		throw new SpeechifyError(
 			`Speechify API Error ${response.statusText}: ${error || "Unknown error"}`,
-			response.status
+			response.status,
 		);
 	}
 
