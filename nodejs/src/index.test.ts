@@ -1,6 +1,6 @@
 import { describe } from "vitest";
 
 import testSuite from "./test-helper.mjs";
-import { Speechify } from "./index.js";
+import { Speechify, SpeechifyAccessTokenManager } from "./index.js";
 
-describe("SDK > TS", () => testSuite(Speechify));
+describe("SDK > TS", () => testSuite(Speechify, SpeechifyAccessTokenManager));

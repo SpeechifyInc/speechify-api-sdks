@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, describe, expect, beforeAll } from "vitest";
 
-export default function testSuite(Speechify) {
+export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 	let speechify;
 
 	beforeAll(() => {
@@ -197,6 +197,82 @@ export default function testSuite(Speechify) {
 			});
 
 			expect(stream).toBeInstanceOf(ReadableStream);
+		});
+	});
+
+	describe("SpeechifyAccessTokenManager", () => {
+		test("works with raw server response", async () => {
+			let callCounter = 0;
+
+			const getToken = async () => {
+				callCounter += 1;
+
+				return {
+					access_token: "a.b.c",
+					expires_in: 1,
+					scope: "audio:speech",
+					token_type: "bearer",
+				};
+			};
+
+			const manager = new SpeechifyAccessTokenManager(speechify, getToken);
+
+			manager.setIsAuthenticated(true);
+
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			expect(callCounter).toBe(1);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			expect(callCounter).toBe(2);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			expect(callCounter).toBe(3);
+
+			manager.setIsAuthenticated(false);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			expect(callCounter).toBe(3);
+		});
+
+		test("works with SDK server response", async () => {
+			let callCounter = 0;
+
+			const getToken = async () => {
+				callCounter += 1;
+
+				return {
+					accessToken: "a.b.c",
+					expiresIn: 1,
+					scopes: ["audio:speech"],
+					tokenType: "bearer",
+				};
+			};
+
+			const manager = new SpeechifyAccessTokenManager(speechify, getToken);
+
+			manager.setIsAuthenticated(true);
+
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			expect(callCounter).toBe(1);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			expect(callCounter).toBe(2);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			expect(callCounter).toBe(3);
+
+			manager.setIsAuthenticated(false);
+
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
+			expect(callCounter).toBe(3);
 		});
 	});
 }

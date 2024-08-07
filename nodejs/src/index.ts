@@ -18,6 +18,7 @@ import type {
 	VoicesCreateResponseServer,
 	VoicesListResponse,
 	VoicesListResponseServer,
+	AccessTokenGetter,
 } from "./types.js";
 
 export type { SpeechifyError } from "./fetch.js";
@@ -39,6 +40,7 @@ export type {
 	SpeechMarkChunk,
 	VoiceModel,
 	VoiceLanguage,
+	AccessTokenGetter,
 } from "./types.js";
 
 /**
@@ -356,5 +358,72 @@ export class Speechify {
 		}
 
 		return response.body;
+	}
+}
+
+type TimeoutID = ReturnType<typeof setTimeout>;
+
+export class SpeechifyAccessTokenManager {
+	#client: Speechify;
+	#getToken: AccessTokenGetter;
+	#isAuthenticated = false;
+	#tokenRefreshTimeout: TimeoutID | undefined;
+
+	constructor(
+		speechifyClient: Speechify,
+		getToken: AccessTokenGetter,
+		{ isAuthenticated = false }: { isAuthenticated?: boolean } = {}
+	) {
+		this.#client = speechifyClient;
+		this.#getToken = getToken;
+		this.setIsAuthenticated(isAuthenticated);
+	}
+
+	setIsAuthenticated(value: boolean) {
+		if (this.#isAuthenticated === Boolean(value)) {
+			return;
+		}
+		this.#isAuthenticated = Boolean(value);
+
+		if (!this.#isAuthenticated) {
+			clearTimeout(this.#tokenRefreshTimeout);
+			this.#tokenRefreshTimeout = undefined;
+			this.#client.setAccessToken(undefined);
+		} else {
+			this.#refreshToken();
+		}
+	}
+
+	async #refreshToken() {
+		if (!this.#isAuthenticated) {
+			return;
+		}
+
+		const tokenResponse = await this.#getToken();
+		if (!tokenResponse) {
+			throw new Error("Token response is missing");
+		}
+
+		const token =
+			"accessToken" in tokenResponse
+				? tokenResponse.accessToken
+				: tokenResponse.access_token;
+		if (!token) {
+			throw new Error("Token is missing");
+		}
+
+		this.#client.setAccessToken(token);
+
+		const expiresIn =
+			"expiresIn" in tokenResponse
+				? tokenResponse.expiresIn
+				: tokenResponse.expires_in;
+		if (!expiresIn) {
+			throw new Error("Token expiration time is missing");
+		}
+
+		setTimeout(() => {
+			this.#refreshToken();
+		}, (expiresIn / 2) * 1000);
 	}
 }

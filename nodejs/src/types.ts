@@ -281,3 +281,10 @@ export interface AudioStreamRequest {
 	 */
 	options?: AudioSpeechRequestOptions;
 }
+
+/**
+ * The getter function to obtain the access token.
+ */
+export type AccessTokenGetter = () => Promise<
+	AccessTokenResponse | AccessTokenServerResponse
+>;
