@@ -11,12 +11,12 @@
 	"exports": {
 		".": {
 			"require": {
-				"default": "./lib/cjs/index.js",
-				"types": "./lib/cjs/index.d.ts"
+				"default": "./lib/cjs/src/index.js",
+				"types": "./lib/cjs/src/index.d.ts"
 			},
 			"import": {
-				"default": "./lib/esm/index.js",
-				"types": "./lib/esm/index.d.ts"
+				"default": "./lib/esm/src/index.js",
+				"types": "./lib/esm/src/index.d.ts"
 			}
 		}
 	},

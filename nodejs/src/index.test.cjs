@@ -4,7 +4,7 @@ import testSuite from "./test-helper.mjs";
 const {
 	Speechify,
 	SpeechifyAccessTokenManager,
-} = require("../lib/cjs/index.js");
+} = require("../lib/cjs/src/index.js");
 
 describe("SDK > CommonJS", () =>
 	testSuite(Speechify, SpeechifyAccessTokenManager));
