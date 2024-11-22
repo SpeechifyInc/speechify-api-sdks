@@ -3,7 +3,11 @@ import path from "node:path";
 import { test, describe, expect, beforeAll } from "vitest";
 import packageJson from "../package.json";
 
-export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
+export default function testSuite(
+	Speechify,
+	SpeechifyAccessTokenManager,
+	{ strict = true } = {},
+) {
 	let speechify;
 
 	beforeAll(() => {
@@ -14,6 +18,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 		speechify = new Speechify({
 			apiKey,
 			apiUrl: "https://api.sws.speechify.dev",
+			strict,
 		});
 	});
 
