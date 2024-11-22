@@ -223,10 +223,7 @@ export class Speechify {
 	async voicesCreate(req: VoicesCreateRequest) {
 		const formData = new FormData();
 		formData.set("name", req.name);
-		formData.set(
-			"sample",
-			req.sample instanceof Buffer ? new Blob([req.sample]) : req.sample,
-		);
+		formData.set("sample", somethingToBlob(req.sample));
 		formData.set("consent", JSON.stringify(req.consent));
 
 		const response = (await this.#fetchJSON({
@@ -464,7 +461,7 @@ export class SpeechifyAccessTokenManager {
 }
 
 const base64ToBlob = async (data: string, audioFormat: AudioSpeechFormat) => {
-	const mime = `audio/${audioFormat}`;
+	const mime = audioFormatToMime(audioFormat);
 
 	if (typeof Buffer !== "undefined") {
 		return new Blob([Buffer.from(data, "base64")], { type: mime });
@@ -473,4 +470,11 @@ const base64ToBlob = async (data: string, audioFormat: AudioSpeechFormat) => {
 	// Browser trick
 	const base64Response = await fetch(`data:${mime};base64,${data}`);
 	return base64Response.blob();
+};
+
+const somethingToBlob = (source: ArrayBuffer | Blob) => {
+	if (source instanceof Blob) {
+		return source;
+	}
+	return new Blob([source]);
 };

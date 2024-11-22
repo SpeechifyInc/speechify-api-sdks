@@ -3,6 +3,31 @@ import path from "node:path";
 import { test, describe, expect, beforeAll } from "vitest";
 import packageJson from "../package.json";
 
+const getSomeBlob = async ({ isBrowser = false } = {}) => {
+	if (isBrowser) {
+		const res = await fetch(
+			// the file is the very same file used below in Node.js branch,
+			// but downloaded from GitHub public URL
+			// the prefix is proxied in the vitest config in `nodejs/vitest.config.browser.ts`, to avoid CORS issues
+			"/github-assets/SpeechifyInc/speechify-api-sdks/raw/refs/heads/main/nodejs/src/test-fixtures/donald-duck-america.mp3",
+		);
+
+		if (!res.ok) {
+			throw new Error(`${res.statusText}: ${await res.text()}`);
+		}
+
+		return res.blob();
+	}
+
+	const file = fs.readFileSync(
+		path.resolve(
+			import.meta.dirname,
+			"./test-fixtures/donald-duck-america.mp3",
+		),
+	);
+	return new Blob([file], { type: "audio/mpeg" });
+};
+
 export default function testSuite(
 	Speechify,
 	SpeechifyAccessTokenManager,
@@ -36,14 +61,11 @@ export default function testSuite(
 		});
 
 		test("create with Blob", async () => {
-			const file = fs.readFileSync(
-				path.resolve(
-					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3",
-				),
-			);
+			const blob = await getSomeBlob({
+				isBrowser: typeof window !== "undefined",
+			});
 
-			const blob = new Blob([file], { type: "audio/mpeg" });
+			console.log(blob);
 
 			const voice = await speechify.voicesCreate({
 				name: "Donald Duck",
@@ -62,7 +84,7 @@ export default function testSuite(
 
 		test("create with Buffer", async () => {
 			if (typeof window !== "undefined") {
-				console.warn("Skipping node-specific test in browser");
+				console.warn("Skipping node-specific test in the browser");
 				return;
 			}
 
@@ -89,16 +111,13 @@ export default function testSuite(
 		});
 
 		test("delete", async () => {
-			const file = fs.readFileSync(
-				path.resolve(
-					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3",
-				),
-			);
+			const blob = await getSomeBlob({
+				isBrowser: typeof window !== "undefined",
+			});
 
 			const voice = await speechify.voicesCreate({
 				name: "Donald Duck",
-				sample: file,
+				sample: blob,
 				consent: {
 					fullName: "Donald Duck",
 					email: "donald.duck@snaydi.moc",
