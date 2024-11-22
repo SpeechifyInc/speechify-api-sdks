@@ -61,6 +61,11 @@ export default function testSuite(
 		});
 
 		test("create with Buffer", async () => {
+			if (typeof window !== "undefined") {
+				console.warn("Skipping node-specific test in browser");
+				return;
+			}
+
 			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
@@ -132,7 +137,7 @@ export default function testSuite(
 			});
 		});
 
-		test("use", async () => {
+		test("use normally", async () => {
 			const token = await speechify.accessTokenIssue("audio:speech");
 
 			speechify.setAccessToken(token.accessToken);
@@ -143,7 +148,7 @@ export default function testSuite(
 				voiceId: "george",
 			});
 
-			expect(speech.audioData).toBeInstanceOf(Buffer);
+			expect(speech.audioData).toBeInstanceOf(Blob);
 
 			speechify.setAccessToken(undefined);
 		});
@@ -183,7 +188,7 @@ export default function testSuite(
 				voiceId: "george",
 			});
 
-			expect(speech.audioData).toBeInstanceOf(Buffer);
+			expect(speech.audioData).toBeInstanceOf(Blob);
 		});
 
 		test("generate with SSML", async () => {
@@ -193,7 +198,7 @@ export default function testSuite(
 				voiceId: "george",
 			});
 
-			expect(speech.audioData).toBeInstanceOf(Buffer);
+			expect(speech.audioData).toBeInstanceOf(Blob);
 		});
 
 		test("stream", async () => {

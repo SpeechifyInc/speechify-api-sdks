@@ -20,6 +20,7 @@ import type {
 	VoicesListResponseServer,
 	AccessTokenGetter,
 	SpeechifyAccessTokenManagerOptions,
+	AudioSpeechFormat,
 } from "./types.js";
 import { VERSION } from "./version.js";
 
@@ -331,7 +332,7 @@ export class Speechify {
 		}) as Promise<AudioSpeechResponseServer>);
 
 		return {
-			audioData: Buffer.from(response.audio_data, "base64"),
+			audioData: await base64ToBlob(response.audio_data, response.audio_format),
 			audioFormat: response.audio_format,
 			billableCharactersCount: response.billable_characters_count,
 			speech_marks: response.speech_marks,
@@ -461,3 +462,15 @@ export class SpeechifyAccessTokenManager {
 		);
 	}
 }
+
+const base64ToBlob = async (data: string, audioFormat: AudioSpeechFormat) => {
+	const mime = `audio/${audioFormat}`;
+
+	if (typeof Buffer !== "undefined") {
+		return new Blob([Buffer.from(data, "base64")], { type: mime });
+	}
+
+	// Browser trick
+	const base64Response = await fetch(`data:${mime};base64,${data}`);
+	return base64Response.blob();
+};

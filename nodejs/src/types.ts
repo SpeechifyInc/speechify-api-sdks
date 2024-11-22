@@ -244,7 +244,7 @@ export interface AudioSpeechResponseServer {
 }
 
 export interface AudioSpeechResponse {
-	audioData: Buffer;
+	audioData: Blob;
 	audioFormat: AudioSpeechResponseServer["audio_format"];
 	billableCharactersCount: AudioSpeechResponseServer["billable_characters_count"];
 	/**
