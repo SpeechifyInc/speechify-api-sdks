@@ -1,4 +1,4 @@
-import packageJson from "../package.json";
+import { VERSION } from "./version.js";
 
 import type {
 	AudioSpeechFormat,
@@ -44,7 +44,7 @@ export const queryAPI = async ({
 	headers.set("Authorization", `Bearer ${token}`);
 
 	headers.set("X-Speechify-SDK", "nodejs");
-	headers.set("X-Speechify-SDK-Version", packageJson.version);
+	headers.set("X-Speechify-SDK-Version", VERSION);
 
 	if (jsonPayload) {
 		options.body = JSON.stringify(jsonPayload);

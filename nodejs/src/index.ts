@@ -21,6 +21,7 @@ import type {
 	AccessTokenGetter,
 	SpeechifyAccessTokenManagerOptions,
 } from "./types.js";
+import { VERSION } from "./version.js";
 
 export type { SpeechifyError } from "./fetch.js";
 export type {
@@ -126,6 +127,13 @@ export class Speechify {
 	}
 
 	/**
+	 * Get the current version of the package
+	 */
+	get version() {
+		return VERSION;
+	}
+
+	/**
 	 * Set the [access token](https://docs.sws.speechify.com/docs/authentication#access-tokens) for the client.
 	 * @param token The Access Token to set.
 	 */
@@ -201,7 +209,7 @@ export class Speechify {
 		})) as VoicesListResponseServer;
 
 		return response.map(
-			mapVoice
+			mapVoice,
 		) satisfies VoicesListResponse as VoicesListResponse;
 	}
 
@@ -216,7 +224,7 @@ export class Speechify {
 		formData.set("name", req.name);
 		formData.set(
 			"sample",
-			req.sample instanceof Buffer ? new Blob([req.sample]) : req.sample
+			req.sample instanceof Buffer ? new Blob([req.sample]) : req.sample,
 		);
 		formData.set("consent", JSON.stringify(req.consent));
 
@@ -389,7 +397,7 @@ export class SpeechifyAccessTokenManager {
 	constructor(
 		speechifyClient: Speechify,
 		getToken: AccessTokenGetter,
-		options: SpeechifyAccessTokenManagerOptions = {}
+		options: SpeechifyAccessTokenManagerOptions = {},
 	) {
 		const { isAuthenticated = false } = options;
 
@@ -445,8 +453,11 @@ export class SpeechifyAccessTokenManager {
 			throw new Error("Token expiration time is missing");
 		}
 
-		setTimeout(() => {
-			this.#refreshToken();
-		}, (expiresIn / 2) * 1000);
+		setTimeout(
+			() => {
+				this.#refreshToken();
+			},
+			(expiresIn / 2) * 1000,
+		);
 	}
 }

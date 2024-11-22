@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { test, describe, expect, beforeAll } from "vitest";
+import packageJson from "../package.json";
 
 export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 	let speechify;
@@ -33,8 +34,8 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3"
-				)
+					"./test-fixtures/donald-duck-america.mp3",
+				),
 			);
 
 			const blob = new Blob([file], { type: "audio/mpeg" });
@@ -58,8 +59,8 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3"
-				)
+					"./test-fixtures/donald-duck-america.mp3",
+				),
 			);
 
 			const voice = await speechify.voicesCreate({
@@ -81,8 +82,8 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 			const file = fs.readFileSync(
 				path.resolve(
 					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3"
-				)
+					"./test-fixtures/donald-duck-america.mp3",
+				),
 			);
 
 			const voice = await speechify.voicesCreate({
@@ -148,7 +149,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 			speechify.setAccessToken(token.accessToken);
 
 			await expect(speechify.voicesList()).rejects.toThrowError(
-				/none of the sufficient scopes found/
+				/none of the sufficient scopes found/,
 			);
 
 			speechify.setAccessToken(undefined);
@@ -197,6 +198,12 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 			});
 
 			expect(stream).toBeInstanceOf(ReadableStream);
+		});
+	});
+
+	describe("version", () => {
+		test("returns the current package version", () => {
+			expect(speechify.version).toBe(packageJson.version);
 		});
 	});
 
