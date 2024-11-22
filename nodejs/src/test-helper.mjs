@@ -3,13 +3,15 @@ import path from "node:path";
 import { test, describe, expect, beforeAll } from "vitest";
 import packageJson from "../package.json";
 
+const sampleFileName = "test-fixtures/sample.mp3";
+
 const getSomeBlob = async ({ isBrowser = false } = {}) => {
 	if (isBrowser) {
 		const res = await fetch(
 			// the file is the very same file used below in Node.js branch,
 			// but downloaded from GitHub public URL
 			// the prefix is proxied in the vitest config in `nodejs/vitest.config.browser.ts`, to avoid CORS issues
-			"/github-assets/SpeechifyInc/speechify-api-sdks/raw/refs/heads/main/nodejs/src/test-fixtures/donald-duck-america.mp3",
+			`/github-assets/SpeechifyInc/speechify-api-sdks/raw/refs/heads/main/nodejs/src/${sampleFileName}`,
 		);
 
 		if (!res.ok) {
@@ -20,10 +22,7 @@ const getSomeBlob = async ({ isBrowser = false } = {}) => {
 	}
 
 	const file = fs.readFileSync(
-		path.resolve(
-			import.meta.dirname,
-			"./test-fixtures/donald-duck-america.mp3",
-		),
+		path.resolve(import.meta.dirname, `./${sampleFileName}`),
 	);
 	return new Blob([file], { type: "audio/mpeg" });
 };
@@ -87,10 +86,7 @@ export default function testSuite(
 			}
 
 			const file = fs.readFileSync(
-				path.resolve(
-					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3",
-				),
+				path.resolve(import.meta.dirname, `./${sampleFileName}`),
 			);
 
 			const voice = await speechify.voicesCreate({
