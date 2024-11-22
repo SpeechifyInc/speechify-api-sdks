@@ -65,8 +65,6 @@ export default function testSuite(
 				isBrowser: typeof window !== "undefined",
 			});
 
-			console.log(blob);
-
 			const voice = await speechify.voicesCreate({
 				name: "Donald Duck",
 				sample: blob,
