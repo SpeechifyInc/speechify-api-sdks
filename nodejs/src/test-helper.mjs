@@ -32,66 +32,57 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 
 		test("create with Blob", async () => {
 			const file = fs.readFileSync(
-				path.resolve(
-					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3",
-				),
+				path.resolve(import.meta.dirname, "./test-fixtures/sample.mp3"),
 			);
 
 			const blob = new Blob([file], { type: "audio/mpeg" });
 
 			const voice = await speechify.voicesCreate({
-				name: "Donald Duck",
+				name: "J. S. Bach",
 				sample: blob,
 				consent: {
-					fullName: "Donald Duck",
-					email: "donald.duck@snaydi.moc",
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
 				},
 			});
 
 			expect(voice).toMatchObject({
-				displayName: "Donald Duck",
+				displayName: "J. S. Bach",
 				type: "personal",
 			});
 		});
 
 		test("create with Buffer", async () => {
 			const file = fs.readFileSync(
-				path.resolve(
-					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3",
-				),
+				path.resolve(import.meta.dirname, "./test-fixtures/sample.mp3"),
 			);
 
 			const voice = await speechify.voicesCreate({
-				name: "Donald Duck",
+				name: "J. S. Bach",
 				sample: file,
 				consent: {
-					fullName: "Donald Duck",
-					email: "donald.duck@snaydi.moc",
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
 				},
 			});
 
 			expect(voice).toMatchObject({
-				displayName: "Donald Duck",
+				displayName: "J. S. Bach",
 				type: "personal",
 			});
 		});
 
 		test("delete", async () => {
 			const file = fs.readFileSync(
-				path.resolve(
-					import.meta.dirname,
-					"./test-fixtures/donald-duck-america.mp3",
-				),
+				path.resolve(import.meta.dirname, "./test-fixtures/sample.mp3"),
 			);
 
 			const voice = await speechify.voicesCreate({
-				name: "Donald Duck",
+				name: "J. S. Bach",
 				sample: file,
 				consent: {
-					fullName: "Donald Duck",
-					email: "donald.duck@snaydi.moc",
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
 				},
 			});
 
