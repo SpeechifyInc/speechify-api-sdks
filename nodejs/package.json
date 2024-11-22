@@ -1,7 +1,7 @@
 {
 	"name": "@speechify/api-sdk",
 	"version": "1.0.0",
-	"description": "",
+	"description": "Official Speechify AI API SDK",
 	"main": "index.js",
 	"type": "module",
 	"files": [
