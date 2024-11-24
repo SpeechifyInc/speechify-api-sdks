@@ -65,16 +65,16 @@ export default function testSuite(
 			});
 
 			const voice = await speechify.voicesCreate({
-				name: "Donald Duck",
+				name: "J. S. Bach",
 				sample: blob,
 				consent: {
-					fullName: "Donald Duck",
-					email: "donald.duck@snaydi.moc",
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
 				},
 			});
 
 			expect(voice).toMatchObject({
-				displayName: "Donald Duck",
+				displayName: "J. S. Bach",
 				type: "personal",
 			});
 		});
@@ -90,16 +90,16 @@ export default function testSuite(
 			);
 
 			const voice = await speechify.voicesCreate({
-				name: "Donald Duck",
+				name: "J. S. Bach",
 				sample: file,
 				consent: {
-					fullName: "Donald Duck",
-					email: "donald.duck@snaydi.moc",
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
 				},
 			});
 
 			expect(voice).toMatchObject({
-				displayName: "Donald Duck",
+				displayName: "J. S. Bach",
 				type: "personal",
 			});
 		});
@@ -110,11 +110,11 @@ export default function testSuite(
 			});
 
 			const voice = await speechify.voicesCreate({
-				name: "Donald Duck",
+				name: "J. S. Bach",
 				sample: blob,
 				consent: {
-					fullName: "Donald Duck",
-					email: "donald.duck@snaydi.moc",
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
 				},
 			});
 
