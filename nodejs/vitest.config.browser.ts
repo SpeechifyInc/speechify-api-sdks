@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 
+// This has to be a separate file, vitest playwright tests do not work otherwise
 export default defineConfig({
 	define: {
 		"process.env": JSON.stringify({
@@ -8,7 +9,7 @@ export default defineConfig({
 	},
 	server: {
 		proxy: {
-			// Proxy requests to GitHub through your local server
+			// Proxy requests to GitHub through vitest local server
 			"/github-assets": {
 				target: "https://github.com",
 				changeOrigin: true,
