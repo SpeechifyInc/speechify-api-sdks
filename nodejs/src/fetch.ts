@@ -44,12 +44,11 @@ export const queryAPI = async ({
 	options.headers = headers;
 
 	headers.set("Authorization", `Bearer ${token}`);
+	headers.set("X-Speechify-SDK", "nodejs");
+	headers.set("X-Speechify-SDK-Version", VERSION);
 
-	// In the browser, custom headers break CORS
-	if (typeof window === "undefined") {
-		headers.set("X-Speechify-SDK", "nodejs");
-		headers.set("X-Speechify-SDK-Version", VERSION);
-	} else {
+	// In the browser, enforce CORS
+	if (typeof window !== "undefined") {
 		options.mode = "cors";
 	}
 
