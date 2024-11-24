@@ -1,0 +1,36 @@
+name: Test Node.js
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    environment: node-test
+
+    env:
+      SPEECHIFY_API_KEY: ${{ secrets.SPEECHIFY_API_KEY }}
+
+    strategy:
+      matrix:
+        node-version: ["18", "20", "22"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: cd nodejs && corepack enable && pnpm install
+
+      - run: cd nodejs && pnpm build && pnpm test:node

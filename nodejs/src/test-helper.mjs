@@ -3,7 +3,35 @@ import path from "node:path";
 import { test, describe, expect, beforeAll } from "vitest";
 import packageJson from "../package.json";
 
-export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
+const sampleFileName = "test-fixtures/sample.mp3";
+
+const getSomeBlob = async ({ isBrowser = false } = {}) => {
+	if (isBrowser) {
+		const res = await fetch(
+			// the file is the very same file used below in Node.js branch,
+			// but downloaded from GitHub public URL
+			// the prefix is proxied in the vitest config in `nodejs/vitest.config.browser.ts`, to avoid CORS issues
+			`/github-assets/SpeechifyInc/speechify-api-sdks/raw/refs/heads/main/nodejs/src/${sampleFileName}`,
+		);
+
+		if (!res.ok) {
+			throw new Error(`${res.statusText}: ${await res.text()}`);
+		}
+
+		return res.blob();
+	}
+
+	const file = fs.readFileSync(
+		path.resolve(import.meta.dirname, `./${sampleFileName}`),
+	);
+	return new Blob([file], { type: "audio/mpeg" });
+};
+
+export default function testSuite(
+	Speechify,
+	SpeechifyAccessTokenManager,
+	{ strict = true } = {},
+) {
 	let speechify;
 
 	beforeAll(() => {
@@ -14,6 +42,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 		speechify = new Speechify({
 			apiKey,
 			apiUrl: "https://api.sws.speechify.dev",
+			strict,
 		});
 	});
 
@@ -31,11 +60,9 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 		});
 
 		test("create with Blob", async () => {
-			const file = fs.readFileSync(
-				path.resolve(import.meta.dirname, "./test-fixtures/sample.mp3"),
-			);
-
-			const blob = new Blob([file], { type: "audio/mpeg" });
+			const blob = await getSomeBlob({
+				isBrowser: typeof window !== "undefined",
+			});
 
 			const voice = await speechify.voicesCreate({
 				name: "J. S. Bach",
@@ -53,8 +80,13 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 		});
 
 		test("create with Buffer", async () => {
+			if (typeof window !== "undefined") {
+				console.warn("Skipping node-specific test in the browser");
+				return;
+			}
+
 			const file = fs.readFileSync(
-				path.resolve(import.meta.dirname, "./test-fixtures/sample.mp3"),
+				path.resolve(import.meta.dirname, `./${sampleFileName}`),
 			);
 
 			const voice = await speechify.voicesCreate({
@@ -73,13 +105,13 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 		});
 
 		test("delete", async () => {
-			const file = fs.readFileSync(
-				path.resolve(import.meta.dirname, "./test-fixtures/sample.mp3"),
-			);
+			const blob = await getSomeBlob({
+				isBrowser: typeof window !== "undefined",
+			});
 
 			const voice = await speechify.voicesCreate({
 				name: "J. S. Bach",
-				sample: file,
+				sample: blob,
 				consent: {
 					fullName: "J. S. Bach",
 					email: "j.s.bach@mezzo.tv",
@@ -118,7 +150,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 			});
 		});
 
-		test("use", async () => {
+		test("use normally", async () => {
 			const token = await speechify.accessTokenIssue("audio:speech");
 
 			speechify.setAccessToken(token.accessToken);
@@ -129,7 +161,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 				voiceId: "george",
 			});
 
-			expect(speech.audioData).toBeInstanceOf(Buffer);
+			expect(speech.audioData).toBeInstanceOf(Blob);
 
 			speechify.setAccessToken(undefined);
 		});
@@ -169,7 +201,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 				voiceId: "george",
 			});
 
-			expect(speech.audioData).toBeInstanceOf(Buffer);
+			expect(speech.audioData).toBeInstanceOf(Blob);
 		});
 
 		test("generate with SSML", async () => {
@@ -179,7 +211,7 @@ export default function testSuite(Speechify, SpeechifyAccessTokenManager) {
 				voiceId: "george",
 			});
 
-			expect(speech.audioData).toBeInstanceOf(Buffer);
+			expect(speech.audioData).toBeInstanceOf(Blob);
 		});
 
 		test("stream", async () => {

@@ -36,21 +36,27 @@ export const queryAPI = async ({
 	url,
 	token,
 	jsonPayload,
-	options = {},
+	options: initialOptions = {},
 }: QueryParams) => {
+	const options = { ...initialOptions };
+
 	const headers = new Headers(options.headers);
 	options.headers = headers;
 
 	headers.set("Authorization", `Bearer ${token}`);
-
 	headers.set("X-Speechify-SDK", "nodejs");
 	headers.set("X-Speechify-SDK-Version", VERSION);
 
+	// In the browser, enforce CORS
+	if (typeof window !== "undefined") {
+		options.mode = "cors";
+	}
+
 	if (jsonPayload) {
 		options.body = JSON.stringify(jsonPayload);
-	}
-	if (!headers.get("Content-Type") && jsonPayload) {
-		headers.set("Content-Type", "application/json");
+		if (!headers.get("Content-Type")) {
+			headers.set("Content-Type", "application/json");
+		}
 	}
 
 	const fullUrl = new URL(url, baseUrl);
@@ -90,9 +96,7 @@ export const fetchJSON = async ({
 		throw new Error("Response is not JSON");
 	}
 
-	if (parseJson) {
-		return response.json();
-	}
+	return response.json();
 };
 
 export const mapLanguage = (lang: VoiceLanguageServer): VoiceLanguage => {

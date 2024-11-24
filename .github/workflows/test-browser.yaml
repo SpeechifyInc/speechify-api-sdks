@@ -1,4 +1,4 @@
-name: Test Node.js
+name: Test Playwright
 
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -19,18 +19,14 @@ jobs:
     env:
       SPEECHIFY_API_KEY: ${{ secrets.SPEECHIFY_API_KEY }}
 
-    strategy:
-      matrix:
-        node-version: ["18", "20", "22"]
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
 
       - run: cd nodejs && corepack enable && pnpm install
 
-      - run: cd nodejs && pnpm build && pnpm test
+      - run: cd nodejs && pnpm exec playwright install chromium && pnpm build && pnpm test:browser
