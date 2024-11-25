@@ -113,17 +113,17 @@ export class Speechify {
 		const isPublicClient = isBrowser;
 
 		if (isPublicClient && isApiKeySet) {
-			return this.#errOrWarn(`
-			You are using the API key in the browser environment.
-			This is strictly not recommended, as it is exposing your Speechify account for anyone to use.
-			Instead, use the API key in a server environment or use the Access Token in the browser.
-			Read more about this at https://docs.sws.speechify.com/docs/authentication`);
+			return this
+				.#errOrWarn(`You are using the API key in the browser environment.
+This is strictly not recommended, as it is exposing your Speechify account for anyone to use.
+Instead, use the API key in a server environment or use the Access Token in the browser.
+Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 		}
 
 		if (!isPublicClient && !isApiKeySet) {
-			return this.#errOrWarn(`
-			You are not using the API Key in the server environment when it's required.
-			Read more about this at https://docs.sws.speechify.com/docs/authentication`);
+			return this
+				.#errOrWarn(`You are not using the API Key in the server environment when it's required.
+Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 		}
 	}
 
