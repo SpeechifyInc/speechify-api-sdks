@@ -237,7 +237,7 @@ export default function testSuite(
 				}),
 			);
 
-			global.fetch = vi.fn();
+			(global ?? window).fetch = vi.fn();
 			fetch.mockResolvedValue(Promise.resolve(mockStreamResponse));
 
 			// Mock the speechify.queryAPI function to return the mock stream
@@ -272,7 +272,7 @@ export default function testSuite(
 				}),
 			);
 
-			global.fetch = vi.fn();
+			(global ?? window).fetch = vi.fn();
 			fetch.mockResolvedValue(Promise.resolve(mockStreamResponse));
 
 			const response = await speechify.audioStream({
