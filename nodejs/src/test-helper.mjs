@@ -247,9 +247,6 @@ export default function testSuite(
 				voiceId: "george",
 			});
 
-			console.log("response", response);
-			console.log("mockStreamResponse.body", mockStreamResponse.body);
-
 			const reader = response.getReader();
 
 			await reader.read();
