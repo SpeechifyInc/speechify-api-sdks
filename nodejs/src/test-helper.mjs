@@ -1,6 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import { test, describe, expect, beforeAll, vi } from "vitest";
+import {
+	test,
+	describe,
+	expect,
+	beforeAll,
+	vi,
+	beforeEach,
+	afterEach,
+} from "vitest";
 import packageJson from "../package.json";
 
 const sampleFileName = "test-fixtures/sample.mp3";
@@ -222,9 +230,19 @@ export default function testSuite(
 
 			expect(stream).toBeInstanceOf(ReadableStream);
 		});
+	});
+
+	describe("stream error handling", () => {
+		beforeEach(() => {
+			globalThis.fetch = vi.fn();
+		});
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
 
 		test("handles audio-server stream errors correctly", async () => {
-			const mockStreamResponse = new Response(
+			const streamResponseWithError = new Response(
 				new ReadableStream({
 					async pull(controller) {
 						controller.enqueue(new Uint8Array([1, 2, 3]));
@@ -236,11 +254,7 @@ export default function testSuite(
 					},
 				}),
 			);
-
-			globalThis.fetch = vi.fn();
-			fetch.mockResolvedValue(Promise.resolve(mockStreamResponse));
-
-			// Mock the speechify.queryAPI function to return the mock stream
+			fetch.mockResolvedValue(Promise.resolve(streamResponseWithError));
 
 			const response = await speechify.audioStream({
 				input: "Hello, world!",
@@ -259,7 +273,7 @@ export default function testSuite(
 		});
 
 		test("handles empty chunk correctly", async () => {
-			const mockStreamResponse = new Response(
+			const streamResponseWithEmptyChunk = new Response(
 				new ReadableStream({
 					async pull(controller) {
 						controller.enqueue(new Uint8Array([1, 2, 3]));
@@ -273,7 +287,7 @@ export default function testSuite(
 			);
 
 			globalThis.fetch = vi.fn();
-			fetch.mockResolvedValue(Promise.resolve(mockStreamResponse));
+			fetch.mockResolvedValue(Promise.resolve(streamResponseWithEmptyChunk));
 
 			const response = await speechify.audioStream({
 				input: "Hello, world!",
