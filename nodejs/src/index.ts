@@ -366,7 +366,32 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 			throw new Error("Response body is empty");
 		}
 
-		return response.body;
+		const reader = response.body.getReader();
+		const stream = new ReadableStream<Uint8Array>({
+			async pull(controller) {
+				try {
+					const { done, value } = await reader.read();
+
+					if (done) {
+						controller.close();
+						return;
+					}
+
+					if (value) {
+						controller.enqueue(value);
+					} else {
+						controller.error(new Error("Error occurred while reading stream"));
+					}
+				} catch (error) {
+					controller.error(new Error("Error occurred while reading stream"));
+				}
+			},
+			cancel() {
+				reader.cancel();
+			},
+		});
+
+		return stream;
 	}
 }
 
