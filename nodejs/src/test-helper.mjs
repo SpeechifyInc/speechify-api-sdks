@@ -233,10 +233,6 @@ export default function testSuite(
 	});
 
 	describe("stream error handling", () => {
-		beforeEach(() => {
-			globalThis.fetch = vi.fn();
-		});
-
 		afterEach(() => {
 			vi.restoreAllMocks();
 		});
@@ -254,7 +250,7 @@ export default function testSuite(
 					},
 				}),
 			);
-			fetch.mockResolvedValue(Promise.resolve(streamResponseWithError));
+			vi.spyOn(globalThis, "fetch").mockImplementation(() => streamResponseWithError);
 
 			const response = await speechify.audioStream({
 				input: "Hello, world!",
@@ -286,8 +282,7 @@ export default function testSuite(
 				}),
 			);
 
-			globalThis.fetch = vi.fn();
-			fetch.mockResolvedValue(Promise.resolve(streamResponseWithEmptyChunk));
+			vi.spyOn(globalThis, "fetch").mockImplementation(() => streamResponseWithEmptyChunk);
 
 			const response = await speechify.audioStream({
 				input: "Hello, world!",
