@@ -1,6 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import { test, describe, expect, beforeAll } from "vitest";
+import {
+	test,
+	describe,
+	expect,
+	beforeAll,
+	vi,
+	beforeEach,
+	afterEach,
+} from "vitest";
 import packageJson from "../package.json";
 
 const sampleFileName = "test-fixtures/sample.mp3";
@@ -221,6 +229,73 @@ export default function testSuite(
 			});
 
 			expect(stream).toBeInstanceOf(ReadableStream);
+		});
+	});
+
+	describe("stream error handling", () => {
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
+
+		test("handles audio-server stream errors correctly", async () => {
+			const streamResponseWithError = new Response(
+				new ReadableStream({
+					async pull(controller) {
+						controller.enqueue(new Uint8Array([1, 2, 3]));
+						await new Promise((resolve) => setTimeout(resolve, 1000));
+						controller.enqueue(new Uint8Array([4, 5, 6]));
+						await new Promise((resolve) => setTimeout(resolve, 1000));
+						controller.error(new Error("Some error from audio server"));
+						controller.enqueue(new Uint8Array([7, 8, 9]));
+					},
+				}),
+			);
+			vi.spyOn(globalThis, "fetch").mockImplementation(() => streamResponseWithError);
+
+			const response = await speechify.audioStream({
+				input: "Hello, world!",
+				voiceId: "george",
+			});
+
+			const reader = response.getReader();
+
+			await reader.read();
+			await reader.read();
+			const resp3 = reader.read();
+
+			await expect(resp3).rejects.toThrow(
+				"Error occurred while reading stream",
+			);
+		});
+
+		test("handles empty chunk correctly", async () => {
+			const streamResponseWithEmptyChunk = new Response(
+				new ReadableStream({
+					async pull(controller) {
+						controller.enqueue(new Uint8Array([1, 2, 3]));
+						await new Promise((resolve) => setTimeout(resolve, 1000));
+						controller.enqueue(new Uint8Array([4, 5, 6]));
+						await new Promise((resolve) => setTimeout(resolve, 1000));
+						controller.enqueue();
+						controller.enqueue(new Uint8Array([7, 8, 9]));
+					},
+				}),
+			);
+
+			vi.spyOn(globalThis, "fetch").mockImplementation(() => streamResponseWithEmptyChunk);
+
+			const response = await speechify.audioStream({
+				input: "Hello, world!",
+				voiceId: "george",
+			});
+			const reader = response.getReader();
+
+			await reader.read();
+			await reader.read();
+
+			await expect(reader.read()).rejects.toThrow(
+				"Error occurred while reading stream",
+			);
 		});
 	});
 
