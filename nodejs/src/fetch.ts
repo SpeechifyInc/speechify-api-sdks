@@ -121,6 +121,8 @@ export const mapVoice = (voice: VoicesListEntryServer): VoicesListEntry => {
 		models: voice.models.map(mapModel),
 		gender: voice.gender,
 		avatarImage: voice.avatar_image,
+		previewAudio: voice.preview_audio,
+		tags: voice.tags,
 	} satisfies VoicesListEntry;
 };
 

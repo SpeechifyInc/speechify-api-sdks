@@ -65,6 +65,8 @@ export interface VoicesListEntryServer extends VoiceBasePropsServer {
 	// Voice avatar image URL.
 	avatar_image?: string | null;
 	gender?: "male" | "female" | "notSpecified";
+	preview_audio?: string | null;
+	tags?: string[];
 }
 
 /**
@@ -79,6 +81,14 @@ export interface VoicesListEntry extends VoiceBaseProps {
 	 * Voice gender.
 	 */
 	gender: VoicesListEntryServer["gender"];
+	/**
+	 * Voice audio preview URL.
+	 */
+	previewAudio: VoicesListEntryServer["preview_audio"];
+	/**
+	 * Voice tags.
+	 */
+	tags: VoicesListEntryServer["tags"];
 }
 
 export type VoicesListResponseServer = VoicesListEntryServer[];
