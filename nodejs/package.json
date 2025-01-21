@@ -2,12 +2,14 @@
 	"name": "@speechify/api-sdk",
 	"version": "2.2.0",
 	"description": "Official Speechify AI API SDK",
-	"main": "index.js",
 	"type": "module",
 	"files": [
 		"/lib",
 		"/src"
 	],
+	"main": "./lib/cjs/src/index.js",
+	"module": "./lib/esm/src/index.js",
+	"types": "./lib/cjs/src/index.d.ts",
 	"exports": {
 		".": {
 			"require": {
