@@ -23,6 +23,7 @@ import type {
 	AudioSpeechFormat,
 } from "./types.js";
 import { VERSION } from "./version.js";
+import { initializePlayer } from "./ui-components/video-player.component.js";
 
 export type { SpeechifyError } from "./fetch.js";
 export type {
@@ -503,3 +504,6 @@ const somethingToBlob = (source: ArrayBuffer | Blob) => {
 	}
 	return new Blob([source]);
 };
+
+export const initilizeSpeechifyPlayer = (speechify: Speechify) =>
+	initializePlayer(speechify);
