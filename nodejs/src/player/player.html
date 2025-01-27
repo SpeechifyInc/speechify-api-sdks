@@ -1,0 +1,296 @@
+<div id="speechify-root">
+  <div>
+    <!-- Link to the CSS file -->
+    <style>
+      .icon {
+        display: inline-block;
+        vertical-align: middle;
+        overflow: hidden;
+      }
+
+      .player-controls {
+        display: flex;
+        align-items: center;
+      }
+
+      .mobile-web-ui .player-container {
+        width: 110%;
+        margin-left: -5%;
+        margin-bottom: 12px;
+      }
+
+      .progress-bar-container {
+        position: relative;
+        flex: 1;
+        margin: 0 16px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .progress-bar-input {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        cursor: pointer;
+        margin: 0;
+      }
+
+      .progress-bar-track {
+        background-color: rgba(0, 0, 0, 0.08);
+        flex: 1;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+
+      .progress-bar-fill {
+        height: 2px;
+        background-color: #000;
+      }
+
+      .mobile-web-ui .progress-bar-fill {
+        height: 3px;
+      }
+
+      .progress-bar-handle {
+        height: 10px;
+        width: 10px;
+        position: absolute;
+        background-color: #000;
+        top: 5px;
+        border-radius: 5px;
+      }
+
+      .time-display {
+        font-size: 12px;
+        color: #757575;
+        font-weight: 500;
+        min-width: 33px;
+        flex-shrink: 0;
+      }
+
+      .time-display:not(:last-child):not(:first-child) {
+        text-align: center;
+      }
+
+      .mobile-web-ui .time-display:first-child {
+        transform: translate(36px, 16px);
+      }
+
+      .mobile-web-ui .time-display:last-child {
+        text-align: right;
+        transform: translate(-36px, 16px);
+      }
+
+      .mobile-web-ui .time-display {
+        font-weight: 500;
+      }
+
+      .control-button {
+        width: 40px;
+        height: 40px;
+        color: #000;
+        cursor: pointer;
+        opacity: 0.9;
+        transition: all 0.2s;
+      }
+
+      .control-button:hover {
+        opacity: 1;
+      }
+
+      .player-wrapper {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        padding: 10px 16px 8px 8px;
+        border-radius: 8px;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .player-info {
+        padding: 0 4px 0 8px;
+        flex: 1;
+      }
+
+      .player-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-glass-500);
+      }
+
+      .player-controls-container {
+        margin-top: 3px;
+      }
+
+      .speechify-logo {
+        color: #000;
+        display: block;
+        margin-left: 12px;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      .speechify-logo:hover {
+        opacity: 1;
+      }
+
+      * {
+        --color-default-blue: #2137fc;
+        --color-electric-300: #6a79fd;
+        --color-electric-250: #b4bbfe;
+        --color-electric-200: #e6e8ff;
+        --color-electric-150: #f1f4f9;
+        --color-electric-100: #f5f6ff;
+        --color-glass-300: #e4eaf1;
+        --color-glass-500: #587393;
+        --color-glass-600: #364a63;
+        --color-glass-700: #1c2c40;
+        --color-glass-800: #14202e;
+        --color-glass-900: #05070b;
+        --color-pill-player: #006341;
+        --color-skim-paragraph-start: #ce1625;
+      }
+
+      .player-root {
+        margin-top: 32px;
+        font-variant: normal;
+        font-feature-settings: normal;
+        font-family:
+          'ABC Diatype',
+          'sohne',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Oxygen,
+          Ubuntu,
+          Cantarell,
+          'Open Sans',
+          'Helvetica Neue',
+          sans-serif;
+      }
+    </style>
+    <div id="player" class="player-root">
+      <div class="player-wrapper" style="background-color: rgb(255, 255, 255)">
+        <div id="speechify-btn-inline-play" style="display: none">
+          <!-- Play Icon SVG will be injected here -->
+          <svg
+            viewBox="0 0 24 24"
+            height="24"
+            width="24"
+            aria-hidden="true"
+            focusable="false"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            style="color: rgb(20, 82, 225)"
+            class="icon icon--play"
+          >
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+        </div>
+        <div id="loading" style="display: block; text-align: center">
+          <style>
+            @keyframes spin {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+          </style>
+          <div
+            class="loading-spinner"
+            style="
+              width: 24px;
+              height: 24px;
+              border: 4px solid rgba(20, 82, 225, 0.3);
+              border-top: 4px solid rgb(20, 82, 225);
+              border-radius: 50%;
+              animation: spin 1s linear infinite;
+            "
+          ></div>
+        </div>
+        <div class="player-info">
+          <div class="player-title">
+            Listen with
+            <div
+              style="
+                display: inline-block;
+                text-decoration: underline;
+                cursor: pointer;
+              "
+              onclick="window.open('https://speechify.com', '_blank');"
+            >
+              Speechify
+            </div>
+          </div>
+          <div class="player-controls-container">
+            <div class="player-controls">
+              <div
+                style="color: var(--color-glass-500)"
+                class="time-display"
+                id="current-progress"
+              >
+                0:00
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-track">
+                  <div
+                    style="
+                      width: calc(0% - 5px);
+                      background-color: rgb(20, 82, 225);
+                    "
+                    class="progress-bar-fill"
+                  ></div>
+                  <div
+                    style="
+                      left: calc(0% - 5px);
+                      background-color: rgb(20, 82, 225);
+                    "
+                    class="progress-bar-handle"
+                  ></div>
+                </div>
+                <div class="progress-bar-input"></div>
+              </div>
+              <div
+                style="color: var(--color-glass-500)"
+                class="time-display"
+                id="total-duration"
+              >
+                0:00
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          style="cursor: pointer"
+          onclick="window.open('https://speechify.com/text-to-speech-api', '_blank');"
+        >
+          <svg
+            width="34"
+            height="19"
+            viewBox="0 0 34 19"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            style="color: rgb(20, 82, 225)"
+            class="speechify-logo"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M7.13085 6.43475L7.97166 5.34716C8.35281 4.85414 8.97964 4.6224 9.58737 4.74983C10.0579 4.84849 10.3599 5.31228 10.2618 5.78572C10.2537 5.8249 10.2429 5.86348 10.2296 5.90119C9.53109 7.87216 9.30873 9.17396 9.5625 9.80659C10.6072 8.55759 15.9444 0.413118 17.6313 0.0265105C18.1945 -0.102562 18.755 0.252173 18.8833 0.818834C18.9267 1.01055 18.9159 1.21067 18.852 1.3965C17.2581 6.03365 16.5832 8.8376 16.8275 9.80836C17.6693 8.61652 18.9197 7.01242 20.5787 4.99605C21.2018 4.23866 22.1959 3.89924 23.1485 4.11866C23.9861 4.31161 24.5097 5.15124 24.3179 5.99404C24.3166 5.99958 24.3154 6.00511 24.3141 6.01064C23.7368 8.42634 23.5228 9.83969 23.6722 10.2507C23.738 10.2002 23.8048 10.1485 23.8728 10.0954C24.6337 9.50119 25.5864 9.21161 26.547 9.28254L34 9.83284L29.0621 10.3978C27.6835 10.5555 26.421 11.2496 25.5442 12.3316L24.3626 13.7898C23.9757 14.2672 23.3813 14.5242 22.7708 14.478C22.1644 14.432 21.663 13.9844 21.5455 13.384C21.2568 11.9092 21.2106 10.1684 21.4069 8.16161C19.9241 10.3907 18.6376 13.5967 17.5473 17.7793C17.3599 18.4985 16.7139 19 15.975 19C15.2693 19 14.6913 18.436 14.6696 17.7263L14.3429 7.03113L11.1828 13.2973C10.8539 13.9494 10.1302 14.2974 9.41932 14.1453C8.6662 13.9841 8.04316 13.4545 7.75942 12.7343L7.40531 11.8354C6.90425 10.5636 5.77337 9.65224 4.43045 9.438C2.95363 9.2024 1.47681 8.96681 0 8.73121L3.28955 8.4971C4.80287 8.3894 6.19938 7.63963 7.13085 6.43475Z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -23,7 +23,7 @@ import type {
 	AudioSpeechFormat,
 } from "./types.js";
 import { VERSION } from "./version.js";
-import { initializePlayer } from "./ui-components/video-player.component.js";
+import { initializePlayer } from "./player/player.js";
 
 export type { SpeechifyError } from "./fetch.js";
 export type {
