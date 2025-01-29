@@ -110,7 +110,7 @@ export default function testSuite(
 			});
 		});
 
-		test.only("create with avatar and gender", async () => {
+		test("create with avatar and gender", async () => {
 			const sampleBlob = await getSomeBlob({
 				type: "sample",
 				isBrowser: typeof window !== "undefined",
