@@ -61,10 +61,12 @@ export interface VoiceBaseProps {
 	models: VoiceModel[];
 }
 
+export type Gender = "male" | "female" | "notSpecified";
+
 export interface VoicesListEntryServer extends VoiceBasePropsServer {
 	// Voice avatar image URL.
 	avatar_image?: string | null;
-	gender?: "male" | "female" | "notSpecified";
+	gender?: Gender;
 	preview_audio?: string | null;
 	tags?: string[];
 }
@@ -107,9 +109,17 @@ export interface VoicesCreateRequest {
 	 */
 	name: string;
 	/**
+	 * Voice gender marker (optional).
+	 */
+	gender?: Gender;
+	/**
 	 * The audio sample file to be used for the voice.
 	 */
 	sample: Blob | Buffer;
+	/**
+	 * The voice avatar image (optional).
+	 */
+	avatar?: Blob | Buffer;
 	/**
 	 * The user consent that the voice belongs to you, or to someone you represent.
 	 */

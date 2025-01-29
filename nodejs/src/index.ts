@@ -223,8 +223,16 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 	async voicesCreate(req: VoicesCreateRequest) {
 		const formData = new FormData();
 		formData.set("name", req.name);
+		if (req.gender) {
+			formData.set("gender", req.gender);
+		}
+		if (req.avatar) {
+			formData.set("avatar", somethingToBlob(req.avatar));
+		}
 		formData.set("sample", somethingToBlob(req.sample));
 		formData.set("consent", JSON.stringify(req.consent));
+
+		console.log(formData);
 
 		const response = (await this.#fetchJSON({
 			url: "/v1/voices",

@@ -1,25 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
-import {
-	test,
-	describe,
-	expect,
-	beforeAll,
-	vi,
-	beforeEach,
-	afterEach,
-} from "vitest";
+import { test, describe, expect, beforeAll, vi, afterEach } from "vitest";
 import packageJson from "../package.json";
 
 const sampleFileName = "test-fixtures/sample.mp3";
+const avatarFileName = "test-fixtures/avatar.jpeg";
 
-const getSomeBlob = async ({ isBrowser = false } = {}) => {
+const getSomeBlob = async ({ type, isBrowser = false } = {}) => {
+	const fileName = type === "avatar" ? avatarFileName : sampleFileName;
+
 	if (isBrowser) {
 		const res = await fetch(
 			// the file is the very same file used below in Node.js branch,
 			// but downloaded from GitHub public URL
 			// the prefix is proxied in the vitest config in `nodejs/vitest.config.browser.ts`, to avoid CORS issues
-			`/github-assets/SpeechifyInc/speechify-api-sdks/raw/refs/heads/main/nodejs/src/${sampleFileName}`,
+			`/github-assets/SpeechifyInc/speechify-api-sdks/raw/refs/heads/main/nodejs/src/${fileName}`,
 		);
 
 		if (!res.ok) {
@@ -30,9 +25,11 @@ const getSomeBlob = async ({ isBrowser = false } = {}) => {
 	}
 
 	const file = fs.readFileSync(
-		path.resolve(import.meta.dirname, `./${sampleFileName}`),
+		path.resolve(import.meta.dirname, `./${fileName}`),
 	);
-	return new Blob([file], { type: "audio/mpeg" });
+	return new Blob([file], {
+		type: type === "avatar" ? "image/jpeg" : "audio/mpeg",
+	});
 };
 
 export default function testSuite(
@@ -69,6 +66,7 @@ export default function testSuite(
 
 		test("create with Blob", async () => {
 			const blob = await getSomeBlob({
+				type: "sample",
 				isBrowser: typeof window !== "undefined",
 			});
 
@@ -110,6 +108,36 @@ export default function testSuite(
 				displayName: "J. S. Bach",
 				type: "personal",
 			});
+		});
+
+		test.only("create with avatar and gender", async () => {
+			const sampleBlob = await getSomeBlob({
+				type: "sample",
+				isBrowser: typeof window !== "undefined",
+			});
+			const avatarBlob = await getSomeBlob({
+				type: "avatar",
+				isBrowser: typeof window !== "undefined",
+			});
+
+			const voice = await speechify.voicesCreate({
+				name: "J. S. Bach",
+				gender: "male",
+				avatar: avatarBlob,
+				sample: sampleBlob,
+				consent: {
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
+				},
+			});
+
+			expect(voice).toMatchObject({
+				gender: "male",
+				displayName: "J. S. Bach",
+				type: "personal",
+			});
+
+			expect(voice.avatar_image).toBeTruthy();
 		});
 
 		test("delete", async () => {
@@ -250,7 +278,9 @@ export default function testSuite(
 					},
 				}),
 			);
-			vi.spyOn(globalThis, "fetch").mockImplementation(() => streamResponseWithError);
+			vi.spyOn(globalThis, "fetch").mockImplementation(
+				() => streamResponseWithError,
+			);
 
 			const response = await speechify.audioStream({
 				input: "Hello, world!",
@@ -282,7 +312,9 @@ export default function testSuite(
 				}),
 			);
 
-			vi.spyOn(globalThis, "fetch").mockImplementation(() => streamResponseWithEmptyChunk);
+			vi.spyOn(globalThis, "fetch").mockImplementation(
+				() => streamResponseWithEmptyChunk,
+			);
 
 			const response = await speechify.audioStream({
 				input: "Hello, world!",
