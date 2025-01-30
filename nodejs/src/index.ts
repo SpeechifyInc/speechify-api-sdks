@@ -46,6 +46,7 @@ export type {
 	AccessTokenServerResponse,
 	AccessTokenGetter,
 	SpeechifyAccessTokenManagerOptions,
+	Gender,
 } from "./types.js";
 
 /**

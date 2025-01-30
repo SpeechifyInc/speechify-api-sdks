@@ -18,6 +18,7 @@ export type VoiceModelName =
 	| "simba-english"
 	| "simba-multilingual"
 	| "simba-turbo";
+
 export interface VoiceModelServer {
 	name: VoiceModelName;
 	languages: VoiceLanguageServer[];
@@ -33,6 +34,11 @@ export interface VoiceModel {
 	 */
 	languages: VoiceLanguage[];
 }
+
+/**
+ * Gender marker for the voice.
+ */
+export type Gender = "male" | "female" | "notSpecified";
 
 export interface VoiceBasePropsServer {
 	id: string;
@@ -71,10 +77,7 @@ export interface VoiceBaseProps {
 	models: VoiceModel[];
 }
 
-export type Gender = "male" | "female" | "notSpecified";
-
 export interface VoicesListEntryServer extends VoiceBasePropsServer {
-	// Voice avatar image URL.
 	preview_audio?: string | null;
 	tags?: string[];
 }
@@ -117,7 +120,7 @@ export interface VoicesCreateRequest {
 	 */
 	name: string;
 	/**
-	 * Voice gender marker (optional).
+	 * Voice gender marker.
 	 */
 	gender?: Gender;
 	/**
@@ -125,7 +128,7 @@ export interface VoicesCreateRequest {
 	 */
 	sample: Blob | Buffer;
 	/**
-	 * The voice avatar image (optional).
+	 * The voice avatar image.
 	 */
 	avatar?: Blob | Buffer;
 	/**
