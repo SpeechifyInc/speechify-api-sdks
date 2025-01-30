@@ -132,12 +132,12 @@ export default function testSuite(
 			});
 
 			expect(voice).toMatchObject({
-				gender: "male",
 				displayName: "J. S. Bach",
+				gender: "male",
 				type: "personal",
 			});
 
-			expect(voice.avatar_image).toBeTruthy();
+			expect(voice.avatarUrl).toBeTruthy();
 		});
 
 		test("delete", async () => {

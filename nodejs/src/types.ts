@@ -39,6 +39,8 @@ export interface VoiceBasePropsServer {
 	type: "shared" | "personal";
 
 	display_name: string;
+	gender?: Gender;
+	avatar_image?: string | null;
 	models: VoiceModelServer[];
 }
 
@@ -56,6 +58,14 @@ export interface VoiceBaseProps {
 	 */
 	displayName: VoiceBasePropsServer["display_name"];
 	/**
+	 * The gender marker for the voice.
+	 */
+	gender: VoiceBasePropsServer["gender"];
+	/**
+	 * URL for the voice avatar image.
+	 */
+	avatarUrl?: string | null;
+	/**
 	 * The list of models that support this voice.
 	 */
 	models: VoiceModel[];
@@ -65,8 +75,6 @@ export type Gender = "male" | "female" | "notSpecified";
 
 export interface VoicesListEntryServer extends VoiceBasePropsServer {
 	// Voice avatar image URL.
-	avatar_image?: string | null;
-	gender?: Gender;
 	preview_audio?: string | null;
 	tags?: string[];
 }

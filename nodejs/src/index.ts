@@ -232,8 +232,6 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 		formData.set("sample", somethingToBlob(req.sample));
 		formData.set("consent", JSON.stringify(req.consent));
 
-		console.log(formData);
-
 		const response = (await this.#fetchJSON({
 			url: "/v1/voices",
 			options: {
@@ -246,6 +244,8 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 			id: response.id,
 			type: response.type,
 			displayName: response.display_name,
+			gender: response.gender,
+			avatarUrl: response.avatar_image,
 			models: response.models.map(mapModel),
 		} satisfies VoicesCreateResponse as VoicesCreateResponse;
 	}
