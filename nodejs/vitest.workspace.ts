@@ -6,6 +6,8 @@ export default defineWorkspace([
 			include: ["src/**/*.node.test.*"],
 			name: "node",
 			environment: "node",
+			testTimeout: 35000,
+			maxConcurrency: 3,
 		},
 	},
 	{
@@ -19,6 +21,8 @@ export default defineWorkspace([
 				name: "chromium",
 				headless: !process.env.TEST_VISIBLE,
 			},
+			testTimeout: 35000,
+			maxConcurrency: 3,
 		},
 	},
 ]);

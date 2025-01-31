@@ -46,6 +46,7 @@ export type {
 	AccessTokenServerResponse,
 	AccessTokenGetter,
 	SpeechifyAccessTokenManagerOptions,
+	Gender,
 } from "./types.js";
 
 /**
@@ -223,6 +224,12 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 	async voicesCreate(req: VoicesCreateRequest) {
 		const formData = new FormData();
 		formData.set("name", req.name);
+		if (req.gender) {
+			formData.set("gender", req.gender);
+		}
+		if (req.avatar) {
+			formData.set("avatar", somethingToBlob(req.avatar));
+		}
 		formData.set("sample", somethingToBlob(req.sample));
 		formData.set("consent", JSON.stringify(req.consent));
 
@@ -238,6 +245,8 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 			id: response.id,
 			type: response.type,
 			displayName: response.display_name,
+			gender: response.gender,
+			avatarUrl: response.avatar_image,
 			models: response.models.map(mapModel),
 		} satisfies VoicesCreateResponse as VoicesCreateResponse;
 	}
