@@ -7,6 +7,7 @@ export default defineWorkspace([
 			name: "node",
 			environment: "node",
 			testTimeout: 35000,
+			maxConcurrency: 3,
 		},
 	},
 	{
@@ -21,6 +22,7 @@ export default defineWorkspace([
 				headless: !process.env.TEST_VISIBLE,
 			},
 			testTimeout: 35000,
+			maxConcurrency: 3,
 		},
 	},
 ]);
