@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "speechify-python-sdk"
+dynamic = ["dependencies", "version"]
+description = 'Python SDK for Speechify API'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [
+  { name = "Irwansyah", email = "irwansyah@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+Documentation = "https://github.com/Irwansyah/speechify-python-sdk#readme"
+Issues = "https://github.com/Irwansyah/speechify-python-sdk/issues"
+Source = "https://github.com/Irwansyah/speechify-python-sdk"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
+
+[tool.hatch.version]
+path = "src/speechify_python_sdk/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/speechify_python_sdk tests}"
+
+[tool.coverage.run]
+source_pkgs = ["speechify_python_sdk", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/speechify_python_sdk/__about__.py",
+]
+
+[tool.coverage.paths]
+speechify_python_sdk = ["src/speechify_python_sdk", "*/speechify-python-sdk/src/speechify_python_sdk"]
+tests = ["tests", "*/speechify-python-sdk/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
