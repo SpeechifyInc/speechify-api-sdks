@@ -20,8 +20,9 @@ jobs:
       SPEECHIFY_API_KEY: ${{ secrets.SPEECHIFY_API_KEY }}
 
     strategy:
+      max-parallel: 2
       matrix:
-        node-version: ["18", "20", "22"]
+        node-version: ["18", "20", "22", "23"]
 
     steps:
       - uses: actions/checkout@v4
@@ -31,6 +32,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: cd nodejs && corepack enable && pnpm install
+      - run: cd nodejs && corepack enable && COREPACK_INTEGRITY_KEYS=0 pnpm install
 
       - run: cd nodejs && pnpm build && pnpm test:node

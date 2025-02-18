@@ -25,8 +25,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - run: cd nodejs && corepack enable && pnpm install
+      - run: cd nodejs && corepack enable && COREPACK_INTEGRITY_KEYS=0 pnpm install
 
       - run: cd nodejs && pnpm exec playwright install chromium && pnpm build && pnpm test:browser
