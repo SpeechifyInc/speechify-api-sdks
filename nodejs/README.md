@@ -125,12 +125,9 @@ The Speechify Embeddable UI package provides an intuitive player component that 
 Here is a complete example of how to integrate the Speechify player into your application:
 
 ```typescript
-import { initializePlayer } from "./src/player/player.ts";
-import { Speechify } from "@speechify/api-sdk";
+import { initializePlayer } from "@speechify/embeddable-ui";
 
-// You need to handle authentication securely by setting up a token issuance endpoint on your server and setting the token manager
-const speechify = new Speechify();
-
+// call init function with speechify sdk instance
 initializePlayer(speechify);
 ```
 
