@@ -20,6 +20,7 @@ jobs:
       SPEECHIFY_API_KEY: ${{ secrets.SPEECHIFY_API_KEY }}
 
     strategy:
+      max-parallel: 2
       matrix:
         node-version: ["18", "20", "22", "23"]
 
