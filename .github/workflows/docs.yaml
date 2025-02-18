@@ -29,7 +29,7 @@ jobs:
           sed -e '/__CONTENT__/{r _site/content.html' -e 'd' -e '}' _site/template.html > _site/index.html
           rm _site/content.html _site/template.html
 
-      - run: cd nodejs && corepack enable && pnpm install
+      - run: cd nodejs && corepack enable && COREPACK_INTEGRITY_KEYS=0 pnpm install
 
       - run: cd nodejs && pnpm run build:docs
 
