@@ -117,26 +117,3 @@ authSystem.on("logout", () => {
 ```
 
 With this setup in place, you can use the `speechify` client without worrying about the access token management.
-
-### Speechify Embeddable UI Package
-
-The Speechify Embeddable UI package provides an intuitive player component that lets you add text-to-speech functionality to your web application with minimal setup. By initializing the Speechify client from the API SDK and then calling the player’s setup function, you can embed a customizable <speechify-player> element into your HTML. This player supports both traditional speech generation and real-time streaming, offering flexibility with attributes such as content, voice-id, and generation type.
-
-Here is a complete example of how to integrate the Speechify player into your application:
-
-```typescript
-import { initializePlayer } from "@speechify/embeddable-ui";
-
-// call init function with speechify sdk instance
-initializePlayer(speechify);
-```
-
-```html
-<speechify-player
-	content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-	voice-id="george"
-	generation-type="stream"
-/>
-```
-
-Please, refer to the [Speechify Embeddable UI package](https://www.npmjs.com/package/@speechify/embeddable-ui) for more information.
