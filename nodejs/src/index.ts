@@ -1,52 +1,52 @@
 import {
-	queryAPI,
+	audioFormatToMime,
 	fetchJSON,
 	mapModel,
 	mapVoice,
-	audioFormatToMime,
+	queryAPI,
 } from "./fetch.js";
 import type {
+	AccessTokenGetter,
 	AccessTokenResponse,
 	AccessTokenScope,
 	AccessTokenServerResponse,
+	AudioSpeechFormat,
 	AudioSpeechRequest,
 	AudioSpeechResponse,
 	AudioSpeechResponseServer,
 	AudioStreamRequest,
+	SpeechifyAccessTokenManagerOptions,
 	VoicesCreateRequest,
 	VoicesCreateResponse,
 	VoicesCreateResponseServer,
 	VoicesListResponse,
 	VoicesListResponseServer,
-	AccessTokenGetter,
-	SpeechifyAccessTokenManagerOptions,
-	AudioSpeechFormat,
 } from "./types.js";
 import { VERSION } from "./version.js";
 
 export type { SpeechifyError } from "./fetch.js";
 export type {
+	AccessTokenGetter,
 	AccessTokenResponse,
 	AccessTokenScope,
+	AccessTokenServerResponse,
+	AudioSpeechFormat,
 	AudioSpeechRequest,
 	AudioSpeechRequestOptions,
 	AudioSpeechResponse,
-	AudioStreamRequest,
 	AudioStreamFormat,
-	VoicesCreateRequest,
-	VoicesCreateResponse,
-	VoicesListResponse,
-	VoicesListEntry,
-	AudioSpeechFormat,
-	VoiceModelName,
+	AudioStreamRequest,
+	Gender,
+	SpeechifyAccessTokenManagerOptions,
 	SpeechMark,
 	SpeechMarkChunk,
-	VoiceModel,
 	VoiceLanguage,
-	AccessTokenServerResponse,
-	AccessTokenGetter,
-	SpeechifyAccessTokenManagerOptions,
-	Gender,
+	VoiceModel,
+	VoiceModelName,
+	VoicesCreateRequest,
+	VoicesCreateResponse,
+	VoicesListEntry,
+	VoicesListResponse,
 } from "./types.js";
 
 /**
@@ -325,7 +325,10 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 			language: req.language,
 			model: req.model,
 			options: req.options
-				? { loudness_normalization: req.options.enableLoudnessNormalization }
+				? {
+						loudness_normalization: req.options.enableLoudnessNormalization,
+						text_normalization: req.options.enableTextNormalization,
+					}
 				: undefined,
 		};
 
@@ -356,7 +359,10 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 			language: req.language,
 			model: req.model,
 			options: req.options
-				? { loudness_normalization: req.options.enableLoudnessNormalization }
+				? {
+						loudness_normalization: req.options.enableLoudnessNormalization,
+						text_normalization: req.options.enableTextNormalization,
+					}
 				: undefined,
 		};
 
