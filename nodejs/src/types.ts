@@ -208,6 +208,7 @@ export type AudioSpeechFormat = "mp3" | "wav" | "ogg" | "aac";
 export type AudioStreamFormat = Exclude<AudioSpeechFormat, "wav">;
 export interface AudioSpeechRequestOptions {
 	enableLoudnessNormalization?: boolean;
+	enableTextNormalization?: boolean;
 }
 
 /**
