@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { test, describe, expect, beforeAll, vi, afterEach } from "vitest";
+import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import packageJson from "../package.json";
 
 const sampleFileName = "test-fixtures/sample.mp3";
@@ -157,6 +157,26 @@ export default function testSuite(
 			const id = voice.id;
 
 			await speechify.voicesDelete(id);
+		});
+
+		test("download sample", async () => {
+			const sample = await getSomeBlob({
+				isBrowser: typeof window !== "undefined",
+			});
+
+			const voice = await speechify.voicesCreate({
+				name: "J. S. Bach",
+				sample,
+				consent: {
+					fullName: "J. S. Bach",
+					email: "j.s.bach@mezzo.tv",
+				},
+			});
+
+			const id = voice.id;
+			const blob = await speechify.voiceSampleDownload(id);
+
+			expect(blob).toBeInstanceOf(Blob);
 		});
 	});
 

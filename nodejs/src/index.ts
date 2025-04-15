@@ -272,6 +272,32 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 	}
 
 	/**
+	 * Download sample audio for a personal cloned voice.
+	 * [API Reference](https://docs.sws.speechify.com/v1/api-reference/api-reference/tts/voices/download-sample).
+	 * @param voiceId The ID of the voice to delete.
+	 * @returns A Blob containing the audio sample data
+	 */
+	async voiceSampleDownload(voiceId: string): Promise<Blob> {
+		const response = await this.#queryAPI({
+			url: `/v1/voices/${voiceId}/sample`,
+			options: {
+				method: "GET",
+			},
+		});
+		if (response.status === 404) {
+			throw new Error("Voice not found");
+		}
+		if (response.status !== 200) {
+			throw new Error("Failed to download voice sample");
+		}
+		const arrayBuffer = await response.body?.getReader().read();
+		if (!arrayBuffer?.value) throw new Error("Failed to download voice sample");
+
+		const blob = new Blob([arrayBuffer.value]);
+		return blob;
+	}
+
+	/**
 	 * Issue a short-living access token to be used by the public-client.
 	 * [API Reference](https://docs.sws.speechify.com/reference/createaccesstoken).
 	 * This method must only be called server-side, and the resultant token should be passed to the client.
