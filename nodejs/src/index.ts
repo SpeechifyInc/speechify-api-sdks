@@ -290,11 +290,8 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 		if (response.status !== 200) {
 			throw new Error("Failed to download voice sample");
 		}
-		const arrayBuffer = await response.body?.getReader().read();
-		if (!arrayBuffer?.value) throw new Error("Failed to download voice sample");
 
-		const blob = new Blob([arrayBuffer.value]);
-		return blob;
+		return await response.blob();
 	}
 
 	/**
