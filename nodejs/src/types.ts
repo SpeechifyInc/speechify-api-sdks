@@ -48,6 +48,7 @@ export interface VoiceBasePropsServer {
 	gender?: Gender;
 	avatar_image?: string | null;
 	models: VoiceModelServer[];
+	locale?: string;
 }
 
 export interface VoiceBaseProps {
@@ -75,6 +76,10 @@ export interface VoiceBaseProps {
 	 * The list of models that support this voice.
 	 */
 	models: VoiceModel[];
+	/**
+	 * The native language (locale) of the personal voice (e.g. en-US, es-ES, etc.)
+	 */
+	locale?: string;
 }
 
 export interface VoicesListEntryServer extends VoiceBasePropsServer {
@@ -144,6 +149,10 @@ export interface VoicesCreateRequest {
 		 */
 		email: string;
 	};
+	/**
+	 * The native language (locale) of the personal voice (e.g. en-US, es-ES, etc.)
+	 */
+	locale?: string;
 }
 
 export type VoicesCreateResponseServer = VoiceBasePropsServer;
