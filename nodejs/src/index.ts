@@ -230,6 +230,9 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 		if (req.avatar) {
 			formData.set("avatar", somethingToBlob(req.avatar));
 		}
+		if (req.locale) {
+			formData.set("locale", req.locale);
+		}
 		formData.set("sample", somethingToBlob(req.sample));
 		formData.set("consent", JSON.stringify(req.consent));
 
@@ -248,6 +251,7 @@ Read more about this at https://docs.sws.speechify.com/docs/authentication`);
 			gender: response.gender,
 			avatarUrl: response.avatar_image,
 			models: response.models.map(mapModel),
+			locale: response.locale,
 		} satisfies VoicesCreateResponse as VoicesCreateResponse;
 	}
 
