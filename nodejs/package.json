@@ -1,6 +1,6 @@
 {
 	"name": "@speechify/api-sdk",
-	"version": "2.5.2",
+	"version": "2.5.3",
 	"description": "Official Speechify AI API SDK",
 	"type": "module",
 	"files": [
