@@ -1,10 +1,12 @@
 # Speechify API Node.js SDK
 
+> ⚠️ **DEPRECATED**: This package is deprecated. Please use the new SDK: [@speechify/api](https://www.npmjs.com/package/@speechify/api)
+
 This is the official Node.js SDK for the Speechify API.
 
 Read the SDK full reference [here](https://speechifyinc.github.io/speechify-api-sdks/nodejs).
 
-Read the REST API documentation [here](https://docs.sws.speechify.com/docs/overview).
+Read the REST API documentation [here](https://docs.sws.speechify.com/v1/docs/get-started/overview).
 
 ## Installation
 
